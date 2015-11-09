@@ -1,0 +1,10 @@
+ext.libraries = [
+        test        : [
+                "org.testng:testng:6.8.1",
+                "org.hamcrest:hamcrest-all:1.3",
+                "org.mockito:mockito-core:1.10.19"
+        ],
+        asyncHttp   : ["com.ning:async-http-client:1.9.30"],
+        gson        : ['com.google.code.gson:gson:2.4'],
+        spring      : ["org.springframework:spring-context:4.1.8.RELEASE"]
+]

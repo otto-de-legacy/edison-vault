@@ -1,0 +1,25 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply from: 'dependencies.gradle'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile libraries.spring
+    compile libraries.asyncHttp
+    compile libraries.gson
+    
+    testCompile libraries.test
+}
+
+test {
+    useTestNG()
+}
+
+idea.project {
+    jdkName = "1.8"
+    languageLevel = "1.8"
+}
+
