@@ -9,5 +9,5 @@ before_install:
   - VAULT_ADDR='http://127.0.0.1:8200' ./vault write secret/keyOne value=secretNumberOne
   - VAULT_ADDR='http://127.0.0.1:8200' ./vault write secret/keyTwo value=secretNumberTwo
   - VAULT_ADDR='http://127.0.0.1:8200' ./vault write secret/keyThree value=secretNumberThree
-  - VAULT_ADDR='http://127.0.0.1:8200' ./vault read secret/blabla
+  - VAULT_ADDR='http://127.0.0.1:8200' ./vault read secret/keyOne
 script: gradle check
