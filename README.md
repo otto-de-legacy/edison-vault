@@ -1,6 +1,8 @@
 # edison-vault
 Library to access Vault servers and inject secrets into Edison services.
 
+[![Build Status](https://travis-ci.org/otto-de/edison-vault.svg?branch=master)](https://travis-ci.org/otto-de/edison-vault)
+
 ## Usage
 This library implements a Spring PropertySourcesPlaceholderConfigurer which extends and replaces the default one. It maps 
 values from vault-secrets to properties which can then be easily accessed via 
