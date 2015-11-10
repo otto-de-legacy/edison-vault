@@ -6,6 +6,7 @@ before_install:
   - wget https://releases.hashicorp.com/vault/0.3.1/vault_0.3.1_linux_386.zip
   - unzip vault_0.3.1_linux_386.zip
   - ./vault server -dev &
+  - sleep 1
   - VAULT_ADDR='http://127.0.0.1:8200' vault write secret/keyOne value=secretNumberOne
   - VAULT_ADDR='http://127.0.0.1:8200' vault write secret/keyTwo value=secretNumberTwo
   - VAULT_ADDR='http://127.0.0.1:8200' vault write secret/keyThree value=secretNumberThree
