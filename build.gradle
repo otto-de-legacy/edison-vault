@@ -4,8 +4,7 @@ apply plugin: 'signing'
 apply plugin: 'maven'
 apply from: 'dependencies.gradle'
 
-group = 'de.otto.edison'
-version='0.0.1-SNAPSHOT'
+version='0.0.1'
 
 repositories {
     mavenCentral()
@@ -29,6 +28,11 @@ idea.project {
     languageLevel = "1.8"
 }
 
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
     classifier = 'sources'
@@ -37,6 +41,7 @@ task sourcesJar(type: Jar) {
 artifacts {
     archives jar
     archives sourcesJar
+    archives javadocJar
 }
 
 signing {
@@ -107,7 +112,8 @@ uploadArchives {
             }
 
             pom.project {
-                name 'vault'
+                group 'de.otto.edison'
+                name 'edison-vault'
                 packaging 'jar'
                 description 'Library to access Vault servers and inject secrets into Edison services.'
                 url 'https://github.com/otto-de/edison-vault'
@@ -136,6 +142,8 @@ uploadArchives {
         }
     }
 }
+
+commitNewVersion.shouldRunAfter uploadArchives
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.8'
