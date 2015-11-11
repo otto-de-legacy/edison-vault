@@ -52,7 +52,7 @@ application.properties:
 
     edison.vault.enabled=true
     edison.vault.properties=someVaultPropertyKey,someOtherVaultPropertyKey
-    edison.vault.base.url=http://yourVaultHostName:4001
+    edison.vault.base.url=https://yourVaultHostName:8200/v1
     edison.vault.secret.path=/some/secret/path/  
     edison.vault.app.id=aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff
     edison.vault.user.id=ffffffff-eeee-dddd-cccc-bbbbbbaaaaa
