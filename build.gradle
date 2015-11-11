@@ -54,18 +54,40 @@ task askForVersionNumber << {
     } else {
         logger.error "Cannot get console."
     }
+    bumpVersionInGradleFile(version)
+}
+
+def bumpVersionInGradleFile(String theVersion) {
     def myFile = new File('build.gradle')
     def output = ""
     myFile.eachLine { line ->
-        output += line.replaceAll('^version\\s*=\\s*.*$', "version='" + version + "'")
+        output += line.replaceAll('^version\\s*=\\s*.*$', "version='" + theVersion + "'")
         output += "\n"
     }
     def outFile = new File("build.gradle")
     outFile.write(output)
 }
 
+def incrementVersion(String theVersion) {
+    def versionArray = theVersion.split("\\.")
+    def major = versionArray[0].toInteger()
+    def minor = versionArray[1].toInteger()
+    def patch = versionArray[2].toInteger() + 1
+
+    return major + "." + minor + "." + patch;
+}
+
+task commitNewVersion << {
+    println(["git", "add", "build.gradle"].execute().text.trim())
+    println(["git", "commit", "-m", "bump version to " + version].execute().text.trim())
+    bumpVersionInGradleFile(incrementVersion(version) + "-SNAPSHOT")
+    println(["git", "add", "build.gradle"].execute().text.trim())
+    println(["git", "commit", "-m", "bump version to next snapshot"].execute().text.trim())
+
+}
+
 task doRelease {
-    dependsOn askForVersionNumber, uploadArchives
+    dependsOn askForVersionNumber, uploadArchives, commitNewVersion
 }
 
 doRelease << {
