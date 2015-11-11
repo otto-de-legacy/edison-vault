@@ -1,6 +1,11 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'signing'
+apply plugin: 'maven'
 apply from: 'dependencies.gradle'
+
+group = 'de.otto.edison'
+version='0.0.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -10,12 +15,13 @@ dependencies {
     compile libraries.spring
     compile libraries.asyncHttp
     compile libraries.gson
-    
+
     testCompile libraries.test
 }
 
 test {
     useTestNG()
+    println()
 }
 
 idea.project {
@@ -23,3 +29,88 @@ idea.project {
     languageLevel = "1.8"
 }
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+task askForVersionNumber << {
+    def console = System.console()
+    def enteredVersion
+    if (console) {
+        enteredVersion = console.readLine('\n\u001B[92m\u001B[1mWhich version do you want to release?\u001B[0m \u001B[2m[' + version + ']\u001B[0m ')
+        if (!enteredVersion.isEmpty()) {
+            version = enteredVersion
+        }
+    } else {
+        logger.error "Cannot get console."
+    }
+    def myFile = new File('build.gradle')
+    def output = ""
+    myFile.eachLine { line ->
+        output += line.replaceAll('^version\\s*=\\s*.*$', "version='" + version + "'")
+        output += "\n"
+    }
+    def outFile = new File("build.gradle")
+    outFile.write(output)
+}
+
+task doRelease {
+    dependsOn askForVersionNumber, uploadArchives
+}
+
+doRelease << {
+
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+                name 'vault'
+                packaging 'jar'
+                description 'Library to access Vault servers and inject secrets into Edison services.'
+                url 'https://github.com/otto-de/edison-vault'
+
+                scm {
+                    url 'scm:git@github.com:otto-de/edison-vault.git'
+                    connection 'scm:git@github.com:otto-de/edison-vault.git'
+                    developerConnection 'scm:git@github.com:otto-de/edison-vault.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'gsteinacker'
+                        name 'Guido Steinacker'
+                    }
+                }
+            }
+        }
+    }
+}
