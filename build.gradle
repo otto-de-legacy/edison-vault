@@ -3,7 +3,7 @@ apply plugin: 'idea'
 apply from: 'dependencies.gradle'
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
