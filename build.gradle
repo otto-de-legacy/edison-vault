@@ -5,6 +5,7 @@ apply plugin: 'maven'
 apply from: 'dependencies.gradle'
 
 version='0.0.2-SNAPSHOT'
+group='de.otto.edison'
 
 repositories {
     mavenCentral()
@@ -112,7 +113,6 @@ uploadArchives {
             }
 
             pom.project {
-                group 'de.otto.edison'
                 name 'edison-vault'
                 packaging 'jar'
                 description 'Library to access Vault servers and inject secrets into Edison services.'
