@@ -53,14 +53,15 @@ task askForVersionNumber << {
     def console = System.console()
     def enteredVersion
     if (console) {
+        version = trimSnapshot(version)
         enteredVersion = console.readLine('\n\u001B[92m\u001B[1mWhich version do you want to release?\u001B[0m \u001B[2m[' + version + ']\u001B[0m ')
         if (!enteredVersion.isEmpty()) {
             version = enteredVersion
         }
+        bumpVersionInGradleFile(version)
     } else {
         logger.error "Cannot get console."
     }
-    bumpVersionInGradleFile(version)
 }
 
 def bumpVersionInGradleFile(String theVersion) {
@@ -77,11 +78,20 @@ def bumpVersionInGradleFile(String theVersion) {
 def incrementVersion(String theVersion) {
     def versionArray = theVersion.split("\\.")
     def major = versionArray[0].toInteger()
-    def minor = versionArray[1].toInteger()
-    def patch = versionArray[2].toInteger() + 1
+    def minor = versionArray[1].toInteger() + 1
+    def patch = 0
 
     return major + "." + minor + "." + patch;
 }
+
+def trimSnapshot(String theVersion) {
+    if (theVersion.endsWith("-SNAPSHOT")) {
+        return theVersion.substring(0, theVersion.length()-9)
+    } else {
+        return theVersion;
+    }
+}
+
 
 task commitNewVersion << {
     println(["git", "add", "build.gradle"].execute().text.trim())
