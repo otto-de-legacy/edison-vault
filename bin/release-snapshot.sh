@@ -24,4 +24,4 @@ check_configuration() {
 
 check_configuration
 
-${SCRIPT_DIR}/gradlew uploadArchives
+${SCRIPT_DIR}/gradlew doRelease
