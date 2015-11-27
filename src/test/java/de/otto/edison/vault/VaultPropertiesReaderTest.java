@@ -82,10 +82,10 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
 
         when(environment.getProperty("edison.vault.enabled")).thenReturn("true");
         when(environment.getProperty("edison.vault.properties")).thenReturn("someKey1,someKey2");
-        when(environment.getProperty("edison.vault.base.url")).thenReturn("http://someBaseUrl");
-        when(environment.getProperty("edison.vault.secret.path")).thenReturn("someSecretPath");
-        when(environment.getProperty("edison.vault.app.id")).thenReturn("someAppId");
-        when(environment.getProperty("edison.vault.user.id")).thenReturn("someUserId");
+        when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
+        when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
+        when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
+        when(environment.getProperty("edison.vault.userid")).thenReturn("someUserId");
         when(beanFactory.getBeanDefinitionNames()).thenReturn(new String[]{});
         when(vaultClient.read("someKey1")).thenReturn("someValue1");
         when(vaultClient.read("someKey2")).thenReturn("someValue2");
@@ -117,10 +117,10 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
 
         when(environment.getProperty("edison.vault.enabled")).thenReturn("true");
         when(environment.getProperty("edison.vault.properties")).thenReturn("  someKey1  ,   someKey2");
-        when(environment.getProperty("edison.vault.base.url")).thenReturn("http://someBaseUrl");
-        when(environment.getProperty("edison.vault.secret.path")).thenReturn("someSecretPath");
-        when(environment.getProperty("edison.vault.app.id")).thenReturn("someAppId");
-        when(environment.getProperty("edison.vault.user.id")).thenReturn("someUserId");
+        when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
+        when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
+        when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
+        when(environment.getProperty("edison.vault.userid")).thenReturn("someUserId");
         when(beanFactory.getBeanDefinitionNames()).thenReturn(new String[]{});
         when(vaultClient.read("someKey1")).thenReturn("someValue1");
         when(vaultClient.read("someKey2")).thenReturn("someValue2");
@@ -151,10 +151,10 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
 
         when(environment.getProperty("edison.vault.enabled")).thenReturn("true");
         when(environment.getProperty("edison.vault.properties")).thenReturn(null);
-        when(environment.getProperty("edison.vault.base.url")).thenReturn("http://someBaseUrl");
-        when(environment.getProperty("edison.vault.secret.path")).thenReturn("someSecretPath");
-        when(environment.getProperty("edison.vault.app.id")).thenReturn("someAppId");
-        when(environment.getProperty("edison.vault.user.id")).thenReturn("someUserId");
+        when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
+        when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
+        when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
+        when(environment.getProperty("edison.vault.userid")).thenReturn("someUserId");
         when(beanFactory.getBeanDefinitionNames()).thenReturn(new String[]{});
         when(vaultClient.read("someKey1")).thenReturn("someValue1");
         when(vaultClient.read("someKey2")).thenReturn("someValue2");
@@ -178,10 +178,10 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
         // given
         testee.vaultTokenFactory = vaultTokenFactory;
         Environment environment = mock(Environment.class);
-        when(environment.getProperty("edison.vault.base.url")).thenReturn("http://someBaseUrl");
-        when(environment.getProperty("edison.vault.secret.path")).thenReturn("someSecretPath");
-        when(environment.getProperty("edison.vault.app.id")).thenReturn("someAppId");
-        when(environment.getProperty("edison.vault.user.id")).thenReturn("someUserId");
+        when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
+        when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
+        when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
+        when(environment.getProperty("edison.vault.userid")).thenReturn("someUserId");
         when(vaultTokenFactory.createVaultToken("http://someBaseUrl")).thenReturn(vaultToken);
 
         // when
@@ -189,18 +189,18 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
         testee.getVaultClient();
 
         // then
-        verify(environment).getProperty("edison.vault.base.url");
-        verify(environment).getProperty("edison.vault.secret.path");
-        verify(environment).getProperty("edison.vault.app.id");
-        verify(environment).getProperty("edison.vault.user.id");
+        verify(environment).getProperty("edison.vault.base-url");
+        verify(environment).getProperty("edison.vault.secret-path");
+        verify(environment).getProperty("edison.vault.appid");
+        verify(environment).getProperty("edison.vault.userid");
     }
 
     @Test
     public void shouldGetVaultClientFromEnvironmentToken() throws Exception {
         // given
         Environment environment = mock(Environment.class);
-        when(environment.getProperty("edison.vault.base.url")).thenReturn("http://someBaseUrl");
-        when(environment.getProperty("edison.vault.secret.path")).thenReturn("someSecretPath");
+        when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
+        when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
         when(environment.getProperty("edison.vault.environment-token")).thenReturn("someClientToken");
 
         // when
@@ -208,10 +208,10 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
         testee.getVaultClient();
 
         // then
-        verify(environment).getProperty("edison.vault.base.url");
-        verify(environment).getProperty("edison.vault.secret.path");
-        verify(environment).getProperty("edison.vault.app.id");
-        verify(environment).getProperty("edison.vault.user.id");
+        verify(environment).getProperty("edison.vault.base-url");
+        verify(environment).getProperty("edison.vault.secret-path");
+        verify(environment).getProperty("edison.vault.appid");
+        verify(environment).getProperty("edison.vault.userid");
     }
 
 }

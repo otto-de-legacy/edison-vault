@@ -43,11 +43,11 @@ public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer 
     }
 
     protected VaultClient getVaultClient() {
-        final String vaultBaseUrl = environment.getProperty("edison.vault.base.url");
-        final String vaultSecretPath = environment.getProperty("edison.vault.secret.path");
+        final String vaultBaseUrl = environment.getProperty("edison.vault.base-url");
+        final String vaultSecretPath = environment.getProperty("edison.vault.secret-path");
         final String tokenEnvironment = environment.getProperty("edison.vault.environment-token");
-        final String vaultAppId = environment.getProperty("edison.vault.app.id");
-        final String vaultUserId = environment.getProperty("edison.vault.user.id");
+        final String vaultAppId = environment.getProperty("edison.vault.appid");
+        final String vaultUserId = environment.getProperty("edison.vault.userid");
 
         VaultToken vaultToken = vaultTokenFactory.createVaultToken(vaultBaseUrl);
 
