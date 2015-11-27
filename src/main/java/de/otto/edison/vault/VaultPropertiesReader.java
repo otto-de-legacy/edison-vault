@@ -1,5 +1,7 @@
 package de.otto.edison.vault;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -9,12 +11,17 @@ import org.springframework.util.StringUtils;
 
 import java.util.Properties;
 
+import static de.otto.edison.vault.VaultClient.vaultClient;
 import static java.lang.Boolean.parseBoolean;
 
 @Component
 public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer {
 
-    private Environment environment;
+    protected Environment environment;
+
+    private Logger LOG = LoggerFactory.getLogger(VaultPropertiesReader.class);
+
+    protected VaultTokenFactory vaultTokenFactory = new VaultTokenFactory();
 
     @Override
     public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -24,22 +31,45 @@ public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer 
         super.postProcessBeanFactory(beanFactory);
     }
 
+    @Override
+    public void setEnvironment(final Environment environment) {
+        this.environment = environment;
+        super.setEnvironment(environment);
+    }
+
     protected boolean vaultEnabled() {
         final String vaultEnabled = environment.getProperty("edison.vault.enabled");
         return vaultEnabled != null && parseBoolean(vaultEnabled);
     }
 
+    protected VaultClient getVaultClient() {
+        final String vaultBaseUrl = environment.getProperty("edison.vault.base.url");
+        final String vaultSecretPath = environment.getProperty("edison.vault.secret.path");
+        final String tokenEnvironment = environment.getProperty("edison.vault.environment-token");
+        final String vaultAppId = environment.getProperty("edison.vault.app.id");
+        final String vaultUserId = environment.getProperty("edison.vault.user.id");
+
+        VaultToken vaultToken = vaultTokenFactory.createVaultToken(vaultBaseUrl);
+
+        if (!StringUtils.isEmpty(tokenEnvironment)) {
+            LOG.info("read token from env variable '{}'", tokenEnvironment);
+            vaultToken.readTokenFromEnv(tokenEnvironment);
+        } else {
+            LOG.info("get token from login");
+            vaultToken.readTokenFromLogin(vaultBaseUrl, vaultAppId, vaultUserId);
+        }
+
+        return vaultClient(vaultBaseUrl, vaultSecretPath, vaultToken);
+    }
+
     private Properties fetchPropertiesFromVault() {
         final Properties vaultProperties = new Properties();
-
         final VaultClient vaultClient = getVaultClient();
-        final String clientToken = vaultClient.login();
         for (final String key : fetchVaultPropertyKeys()) {
             final String trimmedKey = key.trim();
-            vaultProperties.setProperty(trimmedKey, vaultClient.read(clientToken, trimmedKey));
+            vaultProperties.setProperty(trimmedKey, vaultClient.read(trimmedKey));
         }
-        vaultClient.revoke(clientToken);
-
+        vaultClient.revoke();
         return vaultProperties;
     }
 
@@ -49,20 +79,5 @@ public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer 
             return new String[0];
         }
         return vaultPropertyKeys.split(",");
-    }
-
-    protected VaultClient getVaultClient() {
-        final String vaultBaseUrl = environment.getProperty("edison.vault.base.url");
-        final String vaultSecretPath = environment.getProperty("edison.vault.secret.path");
-        final String vaultAppId = environment.getProperty("edison.vault.app.id");
-        final String vaultUserId = environment.getProperty("edison.vault.user.id");
-
-        return new VaultClient(vaultBaseUrl, vaultSecretPath, vaultAppId, vaultUserId);
-    }
-
-    @Override
-    public void setEnvironment(final Environment environment) {
-        this.environment = environment;
-        super.setEnvironment(environment);
     }
 }
