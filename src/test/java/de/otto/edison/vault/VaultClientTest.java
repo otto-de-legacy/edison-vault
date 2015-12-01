@@ -24,7 +24,7 @@ public class VaultClientTest {
         asyncHttpClient = mock(AsyncHttpClient.class);
         vaultToken = mock(VaultToken.class);
 
-        testee = vaultClient("http://someBaseUrl/", "someSecretPath", vaultToken);
+        testee = vaultClient("http://someBaseUrl", "/someSecretPath", vaultToken);
         testee.asyncHttpClient = asyncHttpClient;
     }
 
@@ -38,7 +38,7 @@ public class VaultClientTest {
         when(vaultToken.getToken()).thenReturn("someClientToken");
         when(response.getStatusCode()).thenReturn(200);
         when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someValue"));
-        when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
+        when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
         when(listenableFuture.get()).thenReturn(response);
@@ -64,7 +64,7 @@ public class VaultClientTest {
         when(vaultToken.getToken()).thenReturn("someClientToken");
         when(response.getResponseBody()).thenReturn(null);
         when(response.getStatusCode()).thenReturn(500);
-        when(asyncHttpClient.prepareGet("http://someBaseUrl/someSecretPath/someKey")).thenReturn(boundRequestBuilder);
+        when(asyncHttpClient.prepareGet("http://someBaseUrl/v1/someSecretPath/someKey")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader("X-Vault-Token", "someClientToken")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
         when(listenableFuture.get()).thenReturn(response);

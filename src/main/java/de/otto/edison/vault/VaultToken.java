@@ -36,7 +36,7 @@ public class VaultToken {
     public void readTokenFromLogin(final String vaultBaseUrl, final String appId, final String userId) {
         try {
             final Response response = asyncHttpClient
-                    .preparePost(vaultBaseUrl + "/auth/app-id/login")
+                    .preparePost(vaultBaseUrl + "/v1/auth/app-id/login")
                     .setBody(createAuthBody(appId, userId))
                     .execute()
                     .get();
@@ -58,7 +58,7 @@ public class VaultToken {
         if (token != null ) {
             try {
                 final Response response = asyncHttpClient
-                        .preparePost(vaultBaseUrl + "/auth/token/revoke-self")
+                        .preparePost(vaultBaseUrl + "/v1/auth/token/revoke-self")
                         .setHeader("X-Vault-Token", token)
                         .execute()
                         .get();

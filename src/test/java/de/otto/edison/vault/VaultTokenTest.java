@@ -38,6 +38,7 @@ public class VaultTokenTest extends PowerMockTestCase {
         // then
         assertThat(testee.getToken(), is("mySecretAccessToken"));
         verifyStatic();
+        System.getenv("SOME_SYSTEM_ENV_VARIABLE");
     }
 
     @Test
@@ -49,7 +50,7 @@ public class VaultTokenTest extends PowerMockTestCase {
 
         when(response.getResponseBody()).thenReturn(createValidLoginJson("someClientToken"));
         when(response.getStatusCode()).thenReturn(200);
-        when(asyncHttpClient.preparePost("http://someBaseUrl/auth/app-id/login")).thenReturn(boundRequestBuilder);
+        when(asyncHttpClient.preparePost("http://someBaseUrl/v1/auth/app-id/login")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"app_id\":\"someAppId\", \"user_id\": \"someUserId\"}")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
         when(listenableFuture.get()).thenReturn(response);
@@ -70,7 +71,7 @@ public class VaultTokenTest extends PowerMockTestCase {
 
         when(response.getResponseBody()).thenReturn(null);
         when(response.getStatusCode()).thenReturn(401);
-        when(asyncHttpClient.preparePost("http://someBaseUrl/auth/app-id/login")).thenReturn(boundRequestBuilder);
+        when(asyncHttpClient.preparePost("http://someBaseUrl/v1/auth/app-id/login")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setBody("{\"app_id\":\"someAppId\", \"user_id\": \"someUserId\"}")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
         when(listenableFuture.get()).thenReturn(response);
@@ -93,7 +94,7 @@ public class VaultTokenTest extends PowerMockTestCase {
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(204);
-        when(asyncHttpClient.preparePost("http://someBaseUrl/auth/token/revoke/someClientToken")).thenReturn(boundRequestBuilder);
+        when(asyncHttpClient.preparePost("http://someBaseUrl/v1/auth/token/revoke/someClientToken")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader("X-Vault-Token", "someClientToken")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
         when(listenableFuture.get()).thenReturn(response);
@@ -110,7 +111,7 @@ public class VaultTokenTest extends PowerMockTestCase {
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(503);
-        when(asyncHttpClient.preparePost("http://some-Base.url/auth/token/revoke-self")).thenReturn(boundRequestBuilder);
+        when(asyncHttpClient.preparePost("http://some-Base.url/v1/auth/token/revoke-self")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader("X-Vault-Token", "someClientToken")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
         when(listenableFuture.get()).thenReturn(response);

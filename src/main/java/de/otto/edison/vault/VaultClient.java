@@ -20,6 +20,10 @@ public class VaultClient {
 
     protected AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
 
+    public static String getVaultAddrFromEnv() {
+        return System.getenv("VAULT_ADDR");
+    }
+
     public static VaultClient vaultClient(final String vaultBaseUrl, final String secretPath, final VaultToken vaultToken) {
         return new VaultClient(vaultBaseUrl, secretPath, vaultToken);
     }
@@ -33,7 +37,7 @@ public class VaultClient {
     public String read(final String key) {
         try {
             final Response response = asyncHttpClient
-                    .prepareGet(vaultBaseUrl + secretPath + "/" + key)
+                    .prepareGet(vaultBaseUrl + "/v1" + secretPath + "/" + key)
                     .setHeader("X-Vault-Token", vaultToken.getToken())
                     .execute()
                     .get();

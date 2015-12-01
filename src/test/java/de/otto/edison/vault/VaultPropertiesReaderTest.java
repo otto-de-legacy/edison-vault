@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.*;
 
@@ -212,6 +213,25 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
         verify(environment).getProperty("edison.vault.secret-path");
         verify(environment).getProperty("edison.vault.appid");
         verify(environment).getProperty("edison.vault.userid");
+    }
+
+    @Test
+    public void shouldGetVaultAddrFromEnvironmentIfPropertyIsNotSet() throws Exception {
+        mockStatic(VaultClient.class);
+        // given
+        Environment environment = mock(Environment.class);
+        when(environment.getProperty("edison.vault.base-url")).thenReturn("");
+        when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
+        when(environment.getProperty("edison.vault.environment-token")).thenReturn("someClientToken");
+        when(VaultClient.getVaultAddrFromEnv()).thenReturn("someBaseurl");
+
+        // when
+        testee.setEnvironment(environment);
+        testee.getVaultClient();
+
+        // then
+        verifyStatic(times(1));
+        VaultClient.getVaultAddrFromEnv();
     }
 
 }

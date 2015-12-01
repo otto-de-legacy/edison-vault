@@ -22,12 +22,12 @@ underlying JSON-Property named "value".
 
 Example
 
-    GET http://yourVaultHostName:4001/some/secret/path/secretOne 
+    GET http://yourVaultHostName:4001/v1/some/secret/path/secretOne 
     {
       "value": "theSecretNumberOne"
     }
   
-    GET http://yourVaultHostName:4001/some/secret/path/secretTwo 
+    GET http://yourVaultHostName:4001/v1/some/secret/path/secretTwo 
     {
       "value": "theSecretNumberTwo"
     }
@@ -40,10 +40,10 @@ For further vault documentation see <a href="http://www.vaultproject.io/">http:/
 
 - edison.vault.enabled      enable edison-vault (default=false)
 - edison.vault.properties   comma-separated list of property keys to fetch from vault (default=empty).
-- edison.vault.base.url     url of vault server
-- edison.vault.secret.path  vault secret path  
-- edison.vault.app.id       app id to access the vault server
-- edison.vault.user.id      user id to access the vault server
+- edison.vault.base-url     url of vault server
+- edison.vault.secret-path  vault secret path  
+- edison.vault.appid       app id to access the vault server
+- edison.vault.userid      user id to access the vault server
 
 
 ## Example
@@ -52,10 +52,10 @@ application.properties:
 
     edison.vault.enabled=true
     edison.vault.properties=someVaultPropertyKey,someOtherVaultPropertyKey
-    edison.vault.base.url=https://yourVaultHostName:8200/v1
-    edison.vault.secret.path=/some/secret/path/  
-    edison.vault.app.id=aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff
-    edison.vault.user.id=ffffffff-eeee-dddd-cccc-bbbbbbaaaaa
+    edison.vault.base-url=https://yourVaultHostName:8200
+    edison.vault.secret-path=/some/secret/path/  
+    edison.vault.appid=aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff
+    edison.vault.userid=ffffffff-eeee-dddd-cccc-bbbbbbaaaaa
 
 SomeClass.java:
 
