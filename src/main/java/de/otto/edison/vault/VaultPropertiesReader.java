@@ -50,11 +50,11 @@ public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer 
 
         String vaultBaseUrl = environment.getProperty("edison.vault.base-url");
 
-        VaultToken vaultToken = vaultTokenFactory.createVaultToken(vaultBaseUrl);
-
         if (StringUtils.isEmpty(vaultBaseUrl)) {
             vaultBaseUrl = VaultClient.getVaultAddrFromEnv();
         }
+
+        VaultToken vaultToken = vaultTokenFactory.createVaultToken(vaultBaseUrl);
 
         if (!StringUtils.isEmpty(tokenEnvironment)) {
             LOG.info("read token from env variable '{}'", tokenEnvironment);
