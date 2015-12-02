@@ -111,7 +111,7 @@ public class VaultTokenTest extends PowerMockTestCase {
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(503);
-        when(asyncHttpClient.prepareGet("http://some-Base.url/v1/auth/token/revoke-self")).thenReturn(boundRequestBuilder);
+        when(asyncHttpClient.preparePost("http://some-Base.url/v1/auth/token/revoke-self")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader("X-Vault-Token", "someClientToken")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
         when(listenableFuture.get()).thenReturn(response);
