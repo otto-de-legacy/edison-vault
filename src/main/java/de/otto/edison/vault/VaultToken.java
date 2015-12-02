@@ -58,7 +58,7 @@ public class VaultToken {
         if (token != null ) {
             try {
                 final Response response = asyncHttpClient
-                        .prepareGet(vaultBaseUrl + "/v1/auth/token/revoke-self")
+                        .preparePost(vaultBaseUrl + "/v1/auth/token/revoke-self")
                         .setHeader("X-Vault-Token", token)
                         .execute()
                         .get();
