@@ -75,7 +75,7 @@ public class VaultClientTest {
             fail();
         } catch (RuntimeException e) {
             // then
-            assertThat(e.getMessage(), is("read of vault property 'someKey' failed, return code is '500'"));
+            assertThat(e.getMessage(), is("read of vault property 'someKey' with token 'someClientToken'  failed, return code is '500'"));
         }
     }
 
