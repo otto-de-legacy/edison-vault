@@ -36,13 +36,15 @@ public class VaultClient {
 
     public String read(final String key) {
         try {
+            final String url = vaultBaseUrl + "/v1" + secretPath + "/" + key;
             final Response response = asyncHttpClient
-                    .prepareGet(vaultBaseUrl + "/v1" + secretPath + "/" + key)
+                    .prepareGet(url)
                     .setHeader("X-Vault-Token", vaultToken.getToken())
                     .execute()
                     .get();
             if ((response.getStatusCode() != 200)) {
-                throw new RuntimeException(String.format("read of vault property '%s' failed, return code is '%s'", key, response.getStatusCode()));
+                LOG.error("can't read vault property from '{}' with token '{}'", key, vaultToken.getToken());
+                throw new RuntimeException(String.format("read of vault property '%s' with token '%s' failed, return code is '%s'", key, response.getStatusCode()));
             }
             LOG.info("read of vault property '{}' successful", key);
 
