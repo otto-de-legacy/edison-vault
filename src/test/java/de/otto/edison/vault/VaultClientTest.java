@@ -6,6 +6,8 @@ import com.ning.http.client.Response;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.net.UnknownHostException;
+
 import static de.otto.edison.vault.VaultClient.vaultClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -75,7 +77,7 @@ public class VaultClientTest {
             fail();
         } catch (RuntimeException e) {
             // then
-            assertThat(e.getMessage(), is("read of vault property 'someKey' with token 'someClientToken' failed, return code is '500'"));
+            assertThat(e.getMessage(), is("read of vault property 'someKey' with token 'someClientToken' from url 'http://someBaseUrl/v1/someSecretPath/someKey' failed, return code is '500'"));
         }
     }
 
@@ -86,5 +88,29 @@ public class VaultClientTest {
 
         //then
         verify(vaultToken).revoke();
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void shouldTrimUrlSlashes() throws Exception {
+        // given
+        testee = vaultClient("http://someBaseUrl/", "/someSecretPath/", vaultToken);
+
+        // when
+        testee.read("someKey");
+
+        // then
+        verify(asyncHttpClient).prepareGet("http://someBaseUrl/v1/someSecretPath/someKey");
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void shouldAddMissingUrlSlashes() throws Exception {
+        // given
+        testee = vaultClient("http://someBaseUrl", "someSecretPath", vaultToken);
+
+        // when
+        testee.read("someKey");
+
+        // then
+        verify(asyncHttpClient).prepareGet("http://someBaseUrl/v1/someSecretPath/someKey");
     }
 }

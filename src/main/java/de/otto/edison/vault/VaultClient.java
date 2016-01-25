@@ -29,14 +29,14 @@ public class VaultClient {
     }
 
     private VaultClient(final String vaultBaseUrl, final String secretPath, final VaultToken vaultToken) {
-        this.vaultBaseUrl = vaultBaseUrl;
-        this.secretPath = secretPath;
+        this.vaultBaseUrl = removeTrailingSlash(vaultBaseUrl);
+        this.secretPath = removeLeadingSlash(removeTrailingSlash(secretPath));
         this.vaultToken = vaultToken;
     }
 
     public String read(final String key) {
         try {
-            final String url = vaultBaseUrl + "/v1" + secretPath + "/" + key;
+            final String url = vaultBaseUrl + "/v1/" + secretPath + "/" + key;
             final Response response = asyncHttpClient
                     .prepareGet(url)
                     .setHeader("X-Vault-Token", vaultToken.getToken())
@@ -64,6 +64,20 @@ public class VaultClient {
         Map<String, String> data = (Map<String, String>) responseMap.get("data");
 
         return data.get("value");
+    }
+
+    private String removeTrailingSlash(final String url){
+        if (url.endsWith("/")) {
+            return url.substring(0, url.length() - 1);
+        }
+        return url;
+    }
+
+    private String removeLeadingSlash(final String url){
+        if (url.startsWith("/")) {
+            return url.substring(1);
+        }
+        return url;
     }
 
 }
