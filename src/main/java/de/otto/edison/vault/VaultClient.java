@@ -43,8 +43,8 @@ public class VaultClient {
                     .execute()
                     .get();
             if ((response.getStatusCode() != 200)) {
-                LOG.error("can't read vault property from '{}' with token '{}'", key, vaultToken.getToken());
-                throw new RuntimeException(String.format("read of vault property '%s' with token '%s' failed, return code is '%s'", key, vaultToken.getToken(), response.getStatusCode()));
+                LOG.error("can't read vault property '{}' with token '{}' from url '{}'", key, vaultToken.getToken(), url);
+                throw new RuntimeException(String.format("read of vault property '%s' with token '%s' from url '%s' failed, return code is '%s'", key, vaultToken.getToken(), url, response.getStatusCode()));
             }
             LOG.info("read of vault property '{}' successful", key);
 
