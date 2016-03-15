@@ -6,8 +6,6 @@ import com.ning.http.client.Response;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.net.UnknownHostException;
-
 import static de.otto.edison.vault.VaultClient.vaultClient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -79,15 +77,6 @@ public class VaultClientTest {
             // then
             assertThat(e.getMessage(), is("read of vault property 'someKey' with token 'someClientToken' from url 'http://someBaseUrl/v1/someSecretPath/someKey' failed, return code is '500'"));
         }
-    }
-
-    @Test
-    public void shouldRevokeClientToken() throws Exception {
-        // when
-        testee.revoke();
-
-        //then
-        verify(vaultToken).revoke();
     }
 
     @Test(expectedExceptions = RuntimeException.class)

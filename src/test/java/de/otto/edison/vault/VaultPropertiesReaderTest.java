@@ -101,7 +101,6 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
         // then
         verify(vaultClient).read("someKey1");
         verify(vaultClient).read("someKey2");
-        verify(vaultClient).revoke();
         verifyNoMoreInteractions(vaultClient);
 
         Properties properties = new Properties();
@@ -135,7 +134,6 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
         // then
         verify(vaultClient).read("someKey1");
         verify(vaultClient).read("someKey2");
-        verify(vaultClient).revoke();
         verifyNoMoreInteractions(vaultClient);
 
         Properties properties = new Properties();
@@ -167,7 +165,6 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
         testee.postProcessBeanFactory(beanFactory);
 
         // then
-        verify(vaultClient).revoke();
         verifyNoMoreInteractions(vaultClient);
 
         Properties properties = new Properties();
@@ -183,7 +180,7 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
         when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
         when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
         when(environment.getProperty("edison.vault.userid")).thenReturn("someUserId");
-        when(vaultTokenFactory.createVaultToken("http://someBaseUrl")).thenReturn(vaultToken);
+        when(vaultTokenFactory.createVaultToken()).thenReturn(vaultToken);
 
         // when
         testee.setEnvironment(environment);

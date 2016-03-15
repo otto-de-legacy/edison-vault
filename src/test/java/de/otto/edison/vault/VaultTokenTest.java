@@ -22,7 +22,7 @@ public class VaultTokenTest extends PowerMockTestCase {
     @BeforeMethod
     public void setUp() throws Exception {
         asyncHttpClient = mock(AsyncHttpClient.class);
-        testee = new VaultToken("http://some-Base.url");
+        testee = new VaultToken();
         testee.asyncHttpClient = asyncHttpClient;
     }
 
@@ -86,47 +86,6 @@ public class VaultTokenTest extends PowerMockTestCase {
         }
     }
 
-    @Test
-    public void shouldRevokeClientToken() throws Exception {
-        // given
-        Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
-        ListenableFuture listenableFuture = mock(ListenableFuture.class);
-
-        when(response.getStatusCode()).thenReturn(204);
-        when(asyncHttpClient.prepareGet("http://someBaseUrl/v1/auth/token/revoke-self")).thenReturn(boundRequestBuilder);
-        when(boundRequestBuilder.setHeader("X-Vault-Token", "someClientToken")).thenReturn(boundRequestBuilder);
-        when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
-        when(listenableFuture.get()).thenReturn(response);
-
-        // when/then
-        testee.revoke();
-    }
-
-    @Test
-    public void shouldThrowRuntimeExceptionIfRevokeFails() throws Exception {
-        // given
-        Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
-        ListenableFuture listenableFuture = mock(ListenableFuture.class);
-
-        when(response.getStatusCode()).thenReturn(503);
-        when(asyncHttpClient.preparePost("http://some-Base.url/v1/auth/token/revoke-self")).thenReturn(boundRequestBuilder);
-        when(boundRequestBuilder.setHeader("X-Vault-Token", "someClientToken")).thenReturn(boundRequestBuilder);
-        when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
-        when(listenableFuture.get()).thenReturn(response);
-
-        // when
-        try {
-            testee.setToken("someClientToken");
-            testee.revoke();
-            fail();
-        } catch (RuntimeException e) {
-            // then
-            assertThat(e.getMessage(), is("revoke of vault clientToken failed, return code is '503'"));
-        }
-    }
-
     private String createValidLoginJson(String clientToken) {
         return "{\n" +
                 "  \"lease_id\": \"\",\n" +
@@ -145,7 +104,6 @@ public class VaultTokenTest extends PowerMockTestCase {
                 "  }\n" +
                 "}\n";
     }
-
 
 
 }

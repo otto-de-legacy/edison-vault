@@ -55,10 +55,6 @@ public class VaultClient {
         }
     }
 
-    public void revoke() {
-        vaultToken.revoke();
-    }
-
     private String extractProperty(final String responseBody) {
         Map<String, Object> responseMap = new Gson().fromJson(responseBody, Map.class);
         Map<String, String> data = (Map<String, String>) responseMap.get("data");

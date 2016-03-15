@@ -12,14 +12,9 @@ import java.util.concurrent.ExecutionException;
 
 public class VaultToken {
     private Logger LOG = LoggerFactory.getLogger(VaultToken.class);
-    private final String vaultBaseUrl;
 
     protected AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
     protected String token;
-
-    public VaultToken(final String vaultBaseUrl) {
-        this.vaultBaseUrl = vaultBaseUrl;
-    }
 
     protected void setToken(String token) {
         this.token = token;
@@ -54,28 +49,6 @@ public class VaultToken {
         }
     }
 
-    public void revoke() {
-        if (token != null ) {
-            try {
-                final Response response = asyncHttpClient
-                        .preparePost(vaultBaseUrl + "/v1/auth/token/revoke-self")
-                        .setHeader("X-Vault-Token", token)
-                        .execute()
-                        .get();
-                if (response.getStatusCode() != 204) {
-                    throw new RuntimeException(String.format("revoke of vault clientToken failed, return code is '%s'", response.getStatusCode()));
-                }
-                LOG.info("revoke of vault clientToken successful");
-                token = null;
-            } catch (ExecutionException | InterruptedException e) {
-                LOG.error("revoke of vault clientToken failed", e);
-                throw new RuntimeException(e);
-            }
-        } else {
-            LOG.warn("revoke() called without token");
-        }
-    }
-
     private String createAuthBody(final String appId, final String userId) {
         return String.format("{\"app_id\":\"%s\", \"user_id\": \"%s\"}", appId, userId);
     }
@@ -86,5 +59,4 @@ public class VaultToken {
 
         return auth.get("client_token");
     }
-
 }

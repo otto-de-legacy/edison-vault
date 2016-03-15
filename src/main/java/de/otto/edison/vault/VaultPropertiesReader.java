@@ -54,7 +54,7 @@ public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer 
             vaultBaseUrl = VaultClient.getVaultAddrFromEnv();
         }
 
-        VaultToken vaultToken = vaultTokenFactory.createVaultToken(vaultBaseUrl);
+        VaultToken vaultToken = vaultTokenFactory.createVaultToken();
 
         if (!StringUtils.isEmpty(tokenEnvironment)) {
             LOG.info("read token from env variable '{}'", tokenEnvironment);
@@ -74,7 +74,6 @@ public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer 
             final String trimmedKey = key.trim();
             vaultProperties.setProperty(trimmedKey, vaultClient.read(trimmedKey));
         }
-        vaultClient.revoke();
         return vaultProperties;
     }
 
