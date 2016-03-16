@@ -45,6 +45,7 @@ public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer 
     protected VaultClient getVaultClient() {
         final String vaultSecretPath = environment.getProperty("edison.vault.secret-path");
         final String tokenEnvironment = environment.getProperty("edison.vault.environment-token");
+        final String tokenFile = environment.getProperty("edison.vault.file-token");
         final String vaultAppId = environment.getProperty("edison.vault.appid");
         final String vaultUserId = environment.getProperty("edison.vault.userid");
 
@@ -59,6 +60,9 @@ public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer 
         if (!StringUtils.isEmpty(tokenEnvironment)) {
             LOG.info("read token from env variable '{}'", tokenEnvironment);
             vaultToken.readTokenFromEnv(tokenEnvironment);
+        } else if (!StringUtils.isEmpty(tokenFile)) {
+            LOG.info("read token from file '{}'", tokenFile);
+            vaultToken.readTokenFromFile(tokenFile);
         } else {
             LOG.info("get token from login");
             vaultToken.readTokenFromLogin(vaultBaseUrl, vaultAppId, vaultUserId);

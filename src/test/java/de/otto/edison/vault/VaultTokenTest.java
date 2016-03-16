@@ -7,6 +7,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.testng.reporters.Files;
+
+import java.io.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -84,6 +87,48 @@ public class VaultTokenTest extends PowerMockTestCase {
             // then
             assertThat(e.getMessage(), is("login to vault failed, return code is 401"));
         }
+    }
+
+    @Test
+    public void shouldReadTokenFromFile() throws Exception {
+        // Given
+        String tokenFileName = "./someTestFile";
+        try {
+            createTokenFile(tokenFileName, "2434c862-c01c-4bdc-e862-9ba9afceab32");
+
+            // when
+            testee.readTokenFromFile(tokenFileName);
+
+            // then
+            assertThat(testee.getToken(), is("2434c862-c01c-4bdc-e862-9ba9afceab32"));
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            fail();
+        } finally {
+            new File(tokenFileName).delete();
+        }
+    }
+
+    @Test
+    public void shouldReadTokenFromFileEvenIfThereIsWhiteSpace() throws Exception {
+        // Given
+        String tokenFileName = "./someTestFile";
+        try {
+            createTokenFile(tokenFileName, " 2434c862-c01c-4bdc-e862-9ba9afceab32 \n");
+
+            // when
+            testee.readTokenFromFile(tokenFileName);
+
+            // then
+            assertThat(testee.getToken(), is("2434c862-c01c-4bdc-e862-9ba9afceab32"));
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            fail();
+        } finally {
+            new File(tokenFileName).delete();
+        }
+    }
+
+    private void createTokenFile(String fileName, String content) throws IOException {
+        Files.writeFile(content, new File(fileName));
     }
 
     private String createValidLoginJson(String clientToken) {

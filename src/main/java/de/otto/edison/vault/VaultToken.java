@@ -6,7 +6,10 @@ import com.ning.http.client.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -22,6 +25,19 @@ public class VaultToken {
 
     public String getToken() {
         return token;
+    }
+
+    public void readTokenFromFile(String fileName) {
+        try {
+            File tokenFile = new File(fileName);
+            if (! tokenFile.exists() || !tokenFile.canRead()) {
+                throw new RuntimeException(String.format("Can not read tokenfile from %s", fileName));
+            }
+            token = new String(Files.readAllBytes(Paths.get(fileName)), "UTF-8").replaceAll("\\s+", "");
+
+        } catch (IOException e) {
+
+        }
     }
 
     public void readTokenFromEnv(final String env) {
