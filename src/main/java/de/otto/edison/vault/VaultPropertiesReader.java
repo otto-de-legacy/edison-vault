@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnJava;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -37,7 +40,7 @@ public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer 
         super.setEnvironment(environment);
     }
 
-    protected boolean vaultEnabled() {
+    public boolean vaultEnabled() {
         final String vaultEnabled = environment.getProperty("edison.vault.enabled");
         return vaultEnabled != null && parseBoolean(vaultEnabled);
     }
@@ -71,7 +74,7 @@ public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer 
         return vaultClient(vaultBaseUrl, vaultSecretPath, vaultToken);
     }
 
-    private Properties fetchPropertiesFromVault() {
+    public Properties fetchPropertiesFromVault() {
         final Properties vaultProperties = new Properties();
         final VaultClient vaultClient = getVaultClient();
         for (final String key : fetchVaultPropertyKeys()) {
