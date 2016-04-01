@@ -2,11 +2,7 @@ package de.otto.edison.vault;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Properties;
@@ -14,27 +10,16 @@ import java.util.Properties;
 import static de.otto.edison.vault.VaultClient.vaultClient;
 import static java.lang.Boolean.parseBoolean;
 
-@Component
-public class VaultPropertiesReader extends PropertySourcesPlaceholderConfigurer {
+public class VaultPropertiesReader {
 
-    protected Environment environment;
+    private final Environment environment;
 
     private Logger LOG = LoggerFactory.getLogger(VaultPropertiesReader.class);
 
     protected VaultTokenFactory vaultTokenFactory = new VaultTokenFactory();
 
-    @Override
-    public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        if (vaultEnabled()) {
-            setProperties(fetchPropertiesFromVault());
-        }
-        super.postProcessBeanFactory(beanFactory);
-    }
-
-    @Override
-    public void setEnvironment(final Environment environment) {
+    public VaultPropertiesReader(final Environment environment) {
         this.environment = environment;
-        super.setEnvironment(environment);
     }
 
     public boolean vaultEnabled() {

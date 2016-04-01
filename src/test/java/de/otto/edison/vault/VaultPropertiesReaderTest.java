@@ -19,27 +19,27 @@ import static org.powermock.api.mockito.PowerMockito.*;
 public class VaultPropertiesReaderTest extends PowerMockTestCase {
 
     private VaultPropertiesReader testee;
-    private VaultClient vaultClient;
     private VaultTokenFactory vaultTokenFactory;
     private VaultToken vaultToken;
+    private Environment environment;
+    private VaultClient vaultClient;
 
     @BeforeMethod
     public void setUp() throws Exception {
-        vaultClient = mock(VaultClient.class);
         vaultToken = mock(VaultToken.class);
         vaultTokenFactory = mock(VaultTokenFactory.class);
+        environment = mock(Environment.class);
+        vaultClient = mock(VaultClient.class);
 
-        testee = spy(new VaultPropertiesReader());
+        testee = spy(new VaultPropertiesReader(environment));
     }
 
     @Test
     public void shouldEnableVaultIfPropertySetToTrue() throws Exception {
         // given
-        Environment environment = mock(Environment.class);
         when(environment.getProperty("edison.vault.enabled")).thenReturn("true");
 
         // when
-        testee.setEnvironment(environment);
         boolean vaultEnabled = testee.vaultEnabled();
 
         // then
@@ -50,11 +50,9 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
     @Test
     public void shouldDisableVaultIfPropertySetToFalse() throws Exception {
         // given
-        Environment environment = mock(Environment.class);
         when(environment.getProperty("edison.vault.enabled")).thenReturn("false");
 
         // when
-        testee.setEnvironment(environment);
         boolean vaultEnabled = testee.vaultEnabled();
 
         // then
@@ -64,118 +62,20 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
     @Test
     public void shouldDisableVaultIfPropertyNull() throws Exception {
         // given
-        Environment environment = mock(Environment.class);
         when(environment.getProperty("edison.vault.enabled")).thenReturn(null);
 
         // when
-        testee.setEnvironment(environment);
         boolean vaultEnabled = testee.vaultEnabled();
 
         // then
         assertThat(vaultEnabled, is(false));
     }
 
-    @Test
-    public void shouldReadPropertiesFromVaultAndSetThem() throws Exception {
-        // given
-        Environment environment = mock(Environment.class);
-        ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
-
-        when(environment.getProperty("edison.vault.enabled")).thenReturn("true");
-        when(environment.getProperty("edison.vault.properties")).thenReturn("someKey1,someKey2");
-        when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
-        when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
-        when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
-        when(environment.getProperty("edison.vault.userid")).thenReturn("someUserId");
-        when(beanFactory.getBeanDefinitionNames()).thenReturn(new String[]{});
-        when(vaultClient.read("someKey1")).thenReturn("someValue1");
-        when(vaultClient.read("someKey2")).thenReturn("someValue2");
-
-        doReturn(vaultClient).when(testee).getVaultClient();
-
-
-        // when
-        testee.setEnvironment(environment);
-        testee.postProcessBeanFactory(beanFactory);
-
-        // then
-        verify(vaultClient).read("someKey1");
-        verify(vaultClient).read("someKey2");
-        verifyNoMoreInteractions(vaultClient);
-
-        Properties properties = new Properties();
-        properties.setProperty("someKey1", "someValue1");
-        properties.setProperty("someKey2", "someValue2");
-        verify(testee).setProperties(properties);
-    }
-
-    @Test
-    public void shouldReadPropertiesWithWhitespaceFromVaultAndSetThem() throws Exception {
-        // given
-        Environment environment = mock(Environment.class);
-        ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
-
-        when(environment.getProperty("edison.vault.enabled")).thenReturn("true");
-        when(environment.getProperty("edison.vault.properties")).thenReturn("  someKey1  ,   someKey2");
-        when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
-        when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
-        when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
-        when(environment.getProperty("edison.vault.userid")).thenReturn("someUserId");
-        when(beanFactory.getBeanDefinitionNames()).thenReturn(new String[]{});
-        when(vaultClient.read("someKey1")).thenReturn("someValue1");
-        when(vaultClient.read("someKey2")).thenReturn("someValue2");
-
-        doReturn(vaultClient).when(testee).getVaultClient();
-
-        // when
-        testee.setEnvironment(environment);
-        testee.postProcessBeanFactory(beanFactory);
-
-        // then
-        verify(vaultClient).read("someKey1");
-        verify(vaultClient).read("someKey2");
-        verifyNoMoreInteractions(vaultClient);
-
-        Properties properties = new Properties();
-        properties.setProperty("someKey1", "someValue1");
-        properties.setProperty("someKey2", "someValue2");
-        verify(testee).setProperties(properties);
-    }
-
-    @Test
-    public void shouldNotReadPropertiesIfNoPropertiesAreDefined() throws Exception {
-        // given
-        Environment environment = mock(Environment.class);
-        ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
-
-        when(environment.getProperty("edison.vault.enabled")).thenReturn("true");
-        when(environment.getProperty("edison.vault.properties")).thenReturn(null);
-        when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
-        when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
-        when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
-        when(environment.getProperty("edison.vault.userid")).thenReturn("someUserId");
-        when(beanFactory.getBeanDefinitionNames()).thenReturn(new String[]{});
-        when(vaultClient.read("someKey1")).thenReturn("someValue1");
-        when(vaultClient.read("someKey2")).thenReturn("someValue2");
-
-        doReturn(vaultClient).when(testee).getVaultClient();
-
-        // when
-        testee.setEnvironment(environment);
-        testee.postProcessBeanFactory(beanFactory);
-
-        // then
-        verifyNoMoreInteractions(vaultClient);
-
-        Properties properties = new Properties();
-        verify(testee).setProperties(properties);
-    }
 
     @Test
     public void shouldGetVaultClientFromAppIdAndUserId() throws Exception {
         // given
         testee.vaultTokenFactory = vaultTokenFactory;
-        Environment environment = mock(Environment.class);
         when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
         when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
         when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
@@ -183,7 +83,6 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
         when(vaultTokenFactory.createVaultToken()).thenReturn(vaultToken);
 
         // when
-        testee.setEnvironment(environment);
         testee.getVaultClient();
 
         // then
@@ -196,13 +95,11 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
     @Test
     public void shouldGetVaultClientFromEnvironmentToken() throws Exception {
         // given
-        Environment environment = mock(Environment.class);
         when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
         when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
         when(environment.getProperty("edison.vault.environment-token")).thenReturn("someClientToken");
 
         // when
-        testee.setEnvironment(environment);
         testee.getVaultClient();
 
         // then
@@ -216,19 +113,45 @@ public class VaultPropertiesReaderTest extends PowerMockTestCase {
     public void shouldGetVaultAddrFromEnvironmentIfPropertyIsNotSet() throws Exception {
         mockStatic(VaultClient.class);
         // given
-        Environment environment = mock(Environment.class);
         when(environment.getProperty("edison.vault.base-url")).thenReturn("");
         when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
         when(environment.getProperty("edison.vault.environment-token")).thenReturn("someClientToken");
         when(VaultClient.getVaultAddrFromEnv()).thenReturn("someBaseurl");
 
         // when
-        testee.setEnvironment(environment);
         testee.getVaultClient();
 
         // then
         verifyStatic(times(1));
         VaultClient.getVaultAddrFromEnv();
     }
+
+    @Test
+    public void shouldReadPropertiesFromVaultAndSetThem() throws Exception {
+        // given
+        ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
+
+        when(environment.getProperty("edison.vault.enabled")).thenReturn("true");
+        when(environment.getProperty("edison.vault.properties")).thenReturn("someKey1,someKey2");
+        when(environment.getProperty("edison.vault.base-url")).thenReturn("http://someBaseUrl");
+        when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
+        when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
+        when(environment.getProperty("edison.vault.userid")).thenReturn("someUserId");
+        when(beanFactory.getBeanDefinitionNames()).thenReturn(new String[]{});
+        when(vaultClient.read("someKey1")).thenReturn("someValue1");
+        when(vaultClient.read("someKey2")).thenReturn("someValue2");
+        doReturn(vaultClient).when(testee).getVaultClient();
+
+        // when
+        Properties properties = testee.fetchPropertiesFromVault();
+
+        // then
+        Properties expectedProperties = new Properties();
+        expectedProperties.setProperty("someKey1", "someValue1");
+        expectedProperties.setProperty("someKey2", "someValue2");
+
+        assertThat(properties, is(expectedProperties));
+    }
+
 
 }
