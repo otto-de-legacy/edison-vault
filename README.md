@@ -61,10 +61,10 @@ SomeClass.java:
 
     public class SomeClass {
         
-        @Value("secretOne")
+        @Value("${secretOne}")
         private String theSecretNumberOne;
 
-        public void someMethod(@Value("secretTwo") String theSecretNumberTwo) {
+        public void someMethod(@Value("${secretTwo}") String theSecretNumberTwo) {
 
         }
     }
