@@ -16,35 +16,55 @@ import java.util.concurrent.ExecutionException;
 public class VaultToken {
     private Logger LOG = LoggerFactory.getLogger(VaultToken.class);
 
-    protected AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
-    protected String token;
+    public enum TokenSource {
+        file, login, environment;
+    }
 
-    protected void setToken(String token) {
-        this.token = token;
+    private AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+    private final String token;
+
+    public VaultToken(ConfigProperties configProperties, AsyncHttpClient asyncHttpClient) {
+        this.asyncHttpClient = asyncHttpClient;
+        switch(configProperties.getTokenSource()) {
+            case login:
+                this.token = readTokenFromLogin(configProperties.getBaseUrl(), configProperties.getAppId(), configProperties.getUserId());
+                break;
+            case file:
+                this.token = readTokenFromFile(configProperties.getFileToken());
+                break;
+            case environment:
+                this.token = readTokenFromEnv(configProperties.getEnvironmentToken());
+                break;
+            default:
+                this.token = null;
+                break;
+        }
     }
 
     public String getToken() {
         return token;
     }
 
-    public void readTokenFromFile(String fileName) {
+    protected String readTokenFromFile(String fileName) {
         try {
             File tokenFile = new File(fileName);
             if (! tokenFile.exists() || !tokenFile.canRead()) {
                 throw new RuntimeException(String.format("Can not read tokenfile from %s", fileName));
             }
-            token = new String(Files.readAllBytes(Paths.get(fileName)), "UTF-8").replaceAll("\\s+", "");
+            return new String(Files.readAllBytes(Paths.get(fileName)), "UTF-8").replaceAll("\\s+", "");
 
         } catch (IOException e) {
 
         }
+        return "";
     }
 
-    public void readTokenFromEnv(final String env) {
-        token = System.getenv(env);
+    public String readTokenFromEnv(final String env) {
+        return System.getenv(env);
     }
 
-    public void readTokenFromLogin(final String vaultBaseUrl, final String appId, final String userId) {
+    public String readTokenFromLogin(final String vaultBaseUrl, final String appId, final String userId) {
+        String token;
         try {
             final Response response = asyncHttpClient
                     .preparePost(vaultBaseUrl + "/v1/auth/app-id/login")
@@ -63,13 +83,14 @@ public class VaultToken {
             LOG.error("could not retrieve token from vault", e);
             throw new RuntimeException(e);
         }
+        return token;
     }
 
-    private String createAuthBody(final String appId, final String userId) {
+    private static String createAuthBody(final String appId, final String userId) {
         return String.format("{\"app_id\":\"%s\", \"user_id\": \"%s\"}", appId, userId);
     }
 
-    private String extractToken(final String responseBody) {
+    private static String extractToken(final String responseBody) {
         Map<String, Object> responseMap = new Gson().fromJson(responseBody, Map.class);
         Map<String, String> auth = (Map<String, String>) responseMap.get("auth");
 

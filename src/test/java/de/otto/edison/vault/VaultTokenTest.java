@@ -9,7 +9,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.reporters.Files;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -21,22 +24,24 @@ public class VaultTokenTest extends PowerMockTestCase {
 
     private AsyncHttpClient asyncHttpClient;
     private VaultToken testee;
+    private ConfigProperties configProperties;
 
     @BeforeMethod
     public void setUp() throws Exception {
         asyncHttpClient = mock(AsyncHttpClient.class);
-        testee = new VaultToken();
-        testee.asyncHttpClient = asyncHttpClient;
+        configProperties = mock(ConfigProperties.class);
     }
 
     @Test(enabled = true)
     public void shouldGetTokenFromSystemEnvironment() throws Exception {
         // given
         mockStatic(System.class);
+        when(configProperties.getTokenSource()).thenReturn(VaultToken.TokenSource.environment);
+        when(configProperties.getEnvironmentToken()).thenReturn("SOME_SYSTEM_ENV_VARIABLE");
         when(System.getenv("SOME_SYSTEM_ENV_VARIABLE")).thenReturn("mySecretAccessToken");
 
         // when
-        testee.readTokenFromEnv("SOME_SYSTEM_ENV_VARIABLE");
+        testee = new VaultToken(configProperties, mock(AsyncHttpClient.class));
 
         // then
         assertThat(testee.getToken(), is("mySecretAccessToken"));
@@ -59,7 +64,11 @@ public class VaultTokenTest extends PowerMockTestCase {
         when(listenableFuture.get()).thenReturn(response);
 
         // when
-        testee.readTokenFromLogin("http://someBaseUrl", "someAppId", "someUserId");
+        when(configProperties.getTokenSource()).thenReturn(VaultToken.TokenSource.login);
+        when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
+        when(configProperties.getAppId()).thenReturn("someAppId");
+        when(configProperties.getUserId()).thenReturn("someUserId");
+        testee = new VaultToken(configProperties, asyncHttpClient);
 
         // then
         assertThat(testee.getToken(), is("someClientToken"));
@@ -81,7 +90,11 @@ public class VaultTokenTest extends PowerMockTestCase {
 
         // when
         try {
-            testee.readTokenFromLogin("http://someBaseUrl", "someAppId", "someUserId");
+            when(configProperties.getTokenSource()).thenReturn(VaultToken.TokenSource.login);
+            when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
+            when(configProperties.getAppId()).thenReturn("someAppId");
+            when(configProperties.getUserId()).thenReturn("someUserId");
+            testee = new VaultToken(configProperties, asyncHttpClient);
             fail();
         } catch (RuntimeException e) {
             // then
@@ -95,9 +108,11 @@ public class VaultTokenTest extends PowerMockTestCase {
         String tokenFileName = "./someTestFile";
         try {
             createTokenFile(tokenFileName, "2434c862-c01c-4bdc-e862-9ba9afceab32");
+            when(configProperties.getTokenSource()).thenReturn(VaultToken.TokenSource.file);
+            when(configProperties.getFileToken()).thenReturn(tokenFileName);
 
             // when
-            testee.readTokenFromFile(tokenFileName);
+            testee = new VaultToken(configProperties, asyncHttpClient);
 
             // then
             assertThat(testee.getToken(), is("2434c862-c01c-4bdc-e862-9ba9afceab32"));

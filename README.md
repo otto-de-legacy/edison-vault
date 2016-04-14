@@ -38,22 +38,25 @@ For further vault documentation see <a href="http://www.vaultproject.io/">http:/
 
 ## <a name="properties">application.properties configuration</a>
 
-- edison.vault.enabled      enable edison-vault (default=false)
-- edison.vault.properties   comma-separated list of property keys to fetch from vault (default=empty).
-- edison.vault.base-url     url of vault server
-- edison.vault.secret-path  vault secret path  
-- edison.vault.appid       app id to access the vault server
-- edison.vault.userid      user id to access the vault server
-
+- edison.vault.enabled              enable edison-vault (default=false)
+- edison.vault.base-url             url of vault server
+- edison.vault.secret-path          vault secret path  
+- edison.vault.properties           comma-separated list of property keys to fetch from vault (default=empty).
+- edison.vault.token-source         how to access the vault server token -- possible values are login,file or environment
+- edison.vault.appid                app id to access the vault server (valid for token-source=login)
+- edison.vault.userid               user id to access the vault server (valid for token-source=login)
+- edison.vault.environment-token    environment-variable which holds the token (valid for token-source=environment)
+- edison.vault.file-token           filename where the token is stored in, if not set then $HOME/.vault-token is used  (valid for token-source=file)
 
 ## Example
 
 application.properties:
 
     edison.vault.enabled=true
-    edison.vault.properties=someVaultPropertyKey,someOtherVaultPropertyKey
     edison.vault.base-url=https://yourVaultHostName:8200
-    edison.vault.secret-path=/some/secret/path/  
+    edison.vault.secret-path=/some/secret/path/
+    edison.vault.properties=someVaultPropertyKey,someOtherVaultPropertyKey
+    edison.vault.token-source=login
     edison.vault.appid=aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff
     edison.vault.userid=ffffffff-eeee-dddd-cccc-bbbbbbaaaaa
 

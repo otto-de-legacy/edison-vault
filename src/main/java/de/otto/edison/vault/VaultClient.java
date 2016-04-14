@@ -20,12 +20,8 @@ public class VaultClient {
 
     protected AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
 
-    public static String getVaultAddrFromEnv() {
-        return System.getenv("VAULT_ADDR");
-    }
-
-    public static VaultClient vaultClient(final String vaultBaseUrl, final String secretPath, final VaultToken vaultToken) {
-        return new VaultClient(vaultBaseUrl, secretPath, vaultToken);
+    public static VaultClient vaultClient(final ConfigProperties configProperties, VaultToken vaultToken) {
+        return new VaultClient(configProperties.getBaseUrl(), configProperties.getSecretPath(), vaultToken);
     }
 
     private VaultClient(final String vaultBaseUrl, final String secretPath, final VaultToken vaultToken) {

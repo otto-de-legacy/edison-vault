@@ -18,19 +18,24 @@ public class VaultClientTest {
     private VaultClient testee;
     private AsyncHttpClient asyncHttpClient;
     private VaultToken vaultToken;
+    private ConfigProperties configProperties;
 
     @BeforeMethod
     public void setUp() throws Exception {
         asyncHttpClient = mock(AsyncHttpClient.class);
         vaultToken = mock(VaultToken.class);
-
-        testee = vaultClient("http://someBaseUrl", "/someSecretPath", vaultToken);
-        testee.asyncHttpClient = asyncHttpClient;
+        configProperties = mock(ConfigProperties.class);
     }
 
     @Test
     public void shouldReadProperty() throws Exception {
         // given
+        when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
+        when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
+
+        testee = vaultClient(configProperties, vaultToken);
+        testee.asyncHttpClient = asyncHttpClient;
+
         Response response = mock(Response.class);
         AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
@@ -57,6 +62,12 @@ public class VaultClientTest {
     @Test
     public void shouldThrowRuntimeExceptionIfReadFails() throws Exception {
         // given
+        when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
+        when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
+
+        testee = vaultClient(configProperties, vaultToken);
+        testee.asyncHttpClient = asyncHttpClient;
+
         Response response = mock(Response.class);
         AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
@@ -82,7 +93,11 @@ public class VaultClientTest {
     @Test(expectedExceptions = RuntimeException.class)
     public void shouldTrimUrlSlashes() throws Exception {
         // given
-        testee = vaultClient("http://someBaseUrl/", "/someSecretPath/", vaultToken);
+        when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
+        when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
+
+        testee = vaultClient(configProperties, vaultToken);
+        testee.asyncHttpClient = asyncHttpClient;
 
         // when
         testee.read("someKey");
@@ -94,7 +109,11 @@ public class VaultClientTest {
     @Test(expectedExceptions = RuntimeException.class)
     public void shouldAddMissingUrlSlashes() throws Exception {
         // given
-        testee = vaultClient("http://someBaseUrl", "someSecretPath", vaultToken);
+        when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
+        when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
+
+        testee = vaultClient(configProperties, vaultToken);
+        testee.asyncHttpClient = asyncHttpClient;
 
         // when
         testee.read("someKey");
