@@ -5,6 +5,7 @@ import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,11 @@ public class VaultToken {
                 this.token = readTokenFromLogin(configProperties.getBaseUrl(), configProperties.getAppId(), configProperties.getUserId());
                 break;
             case file:
-                this.token = readTokenFromFile(configProperties.getFileToken());
+                String fileToken = configProperties.getFileToken();
+                if (StringUtils.isEmpty(fileToken)) {
+                    fileToken = configProperties.getDefaultVaultTokenFileName();
+                 }
+                this.token = readTokenFromFile(fileToken);
                 break;
             case environment:
                 this.token = readTokenFromEnv(configProperties.getEnvironmentToken());

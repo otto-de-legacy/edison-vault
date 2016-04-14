@@ -17,6 +17,7 @@ public class ConfigProperties {
     private final String fileToken;
     private final String appId;
     private final String userId;
+    private final String defaultVaultToken;
 
     public ConfigProperties(Environment environment) {
         enabled = Boolean.parseBoolean(environment.getProperty("edison.vault.enabled"));
@@ -29,6 +30,8 @@ public class ConfigProperties {
         fileToken = environment.getProperty("edison.vault.file-token");
         appId = environment.getProperty("edison.vault.appid");
         userId = environment.getProperty("edison.vault.userid");
+        final String homeDir = environment.getProperty("user.home");
+        defaultVaultToken = homeDir + "/.vault-token";
     }
 
     public boolean isEnabled() {
@@ -67,6 +70,10 @@ public class ConfigProperties {
         return userId;
     }
 
+    public String getDefaultVaultTokenFileName() {
+        return defaultVaultToken;
+    }
+
     private static String getVaultAddrFromEnv() {
         return System.getenv("VAULT_ADDR");
     }
@@ -94,7 +101,8 @@ public class ConfigProperties {
             return false;
         if (fileToken != null ? !fileToken.equals(that.fileToken) : that.fileToken != null) return false;
         if (appId != null ? !appId.equals(that.appId) : that.appId != null) return false;
-        return userId != null ? userId.equals(that.userId) : that.userId == null;
+        if (userId != null ? !userId.equals(that.userId) : that.userId != null) return false;
+        return defaultVaultToken != null ? defaultVaultToken.equals(that.defaultVaultToken) : that.defaultVaultToken == null;
 
     }
 
@@ -109,6 +117,7 @@ public class ConfigProperties {
         result = 31 * result + (fileToken != null ? fileToken.hashCode() : 0);
         result = 31 * result + (appId != null ? appId.hashCode() : 0);
         result = 31 * result + (userId != null ? userId.hashCode() : 0);
+        result = 31 * result + (defaultVaultToken != null ? defaultVaultToken.hashCode() : 0);
         return result;
     }
 
@@ -124,6 +133,7 @@ public class ConfigProperties {
                 ", fileToken='" + fileToken + '\'' +
                 ", appId='" + appId + '\'' +
                 ", userId='" + userId + '\'' +
+                ", defaultVaultToken='" + defaultVaultToken + '\'' +
                 '}';
     }
 }
