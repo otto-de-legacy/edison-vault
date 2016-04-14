@@ -14,12 +14,9 @@ import org.springframework.stereotype.Component;
 public class VaultPropertyPlaceholderConfigurer extends PropertySourcesPlaceholderConfigurer {
 
     protected Environment environment;
-    private final AsyncHttpClient asyncHttpClient;
 
     @Autowired
-    public VaultPropertyPlaceholderConfigurer(AsyncHttpClient asyncHttpClient) {
-        this.asyncHttpClient = asyncHttpClient;
-    }
+    private AsyncHttpClient asyncHttpClient;
 
     @Override
     public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) throws BeansException {
