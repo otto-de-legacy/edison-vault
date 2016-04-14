@@ -15,13 +15,10 @@ public class VaultPropertyPlaceholderConfigurer extends PropertySourcesPlacehold
 
     protected Environment environment;
 
-    @Autowired
-    private AsyncHttpClient asyncHttpClient;
-
     @Override
     public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) throws BeansException {
         ConfigProperties configProperties = new ConfigProperties(environment);
-        VaultReader vaultReader = new VaultReader(configProperties, VaultClient.vaultClient(configProperties, new VaultToken(configProperties, asyncHttpClient)));
+        VaultReader vaultReader = new VaultReader(configProperties, VaultClient.vaultClient(configProperties, new VaultToken(configProperties, new AsyncHttpClient())));
         if (vaultReader.vaultEnabled()) {
             setProperties(vaultReader.fetchPropertiesFromVault());
         }
