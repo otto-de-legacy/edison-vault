@@ -25,7 +25,8 @@ public class ConfigProperties {
         baseUrl = StringUtils.isEmpty(baseUrlProperty) ? getVaultAddrFromEnv() : baseUrlProperty;
         secretPath = environment.getProperty("edison.vault.secret-path");
         properties = splitVaultPropertyKeys(environment.getProperty("edison.vault.properties"));
-        tokenSource = VaultToken.TokenSource.valueOf(environment.getProperty("edison.vault.token-source"));
+        final String tokenSourceProperty = environment.getProperty("edison.vault.token-source");
+        tokenSource = VaultToken.TokenSource.valueOf(tokenSourceProperty == null ? "undefined" : tokenSourceProperty);
         environmentToken = environment.getProperty("edison.vault.environment-token");
         fileToken = environment.getProperty("edison.vault.file-token");
         appId = environment.getProperty("edison.vault.appid");

@@ -18,7 +18,7 @@ public class VaultToken {
     private Logger LOG = LoggerFactory.getLogger(VaultToken.class);
 
     public enum TokenSource {
-        file, login, environment;
+        undefined, file, login, environment;
     }
 
     private AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
