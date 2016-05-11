@@ -12,7 +12,7 @@ public class ConfigProperties {
     private final String baseUrl;
     private final String secretPath;
     private final List<String> properties;
-    private final VaultToken.TokenSource tokenSource;
+    private final VaultTokenReader.TokenSource tokenSource;
     private final String environmentToken;
     private final String fileToken;
     private final String appId;
@@ -26,7 +26,7 @@ public class ConfigProperties {
         secretPath = environment.getProperty("edison.vault.secret-path");
         properties = splitVaultPropertyKeys(environment.getProperty("edison.vault.properties"));
         final String tokenSourceProperty = environment.getProperty("edison.vault.token-source");
-        tokenSource = VaultToken.TokenSource.valueOf(tokenSourceProperty == null ? "undefined" : tokenSourceProperty);
+        tokenSource = VaultTokenReader.TokenSource.valueOf(tokenSourceProperty == null ? "undefined" : tokenSourceProperty);
         environmentToken = environment.getProperty("edison.vault.environment-token");
         fileToken = environment.getProperty("edison.vault.file-token");
         appId = environment.getProperty("edison.vault.appid");
@@ -51,7 +51,7 @@ public class ConfigProperties {
         return properties;
     }
 
-    public VaultToken.TokenSource getTokenSource() {
+    public VaultTokenReader.TokenSource getTokenSource() {
         return tokenSource;
     }
 

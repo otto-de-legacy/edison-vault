@@ -36,7 +36,7 @@ public class ConfigPropertiesTest {
         assertThat(testee.getProperties().get(0), is("keyOne"));
         assertThat(testee.getProperties().get(1), is("keyTwo"));
         assertThat(testee.getProperties().get(2), is("keyThree"));
-        assertThat(testee.getTokenSource(), is(VaultToken.TokenSource.file));
+        assertThat(testee.getTokenSource(), is(VaultTokenReader.TokenSource.file));
         assertThat(testee.getAppId(), is("someAppId"));
         assertThat(testee.getUserId(), is("someUserId"));
 

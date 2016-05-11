@@ -9,59 +9,52 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-public class VaultToken {
-    private Logger LOG = LoggerFactory.getLogger(VaultToken.class);
+public class VaultTokenReader {
+    private static final Logger LOG = LoggerFactory.getLogger(VaultTokenReader.class);
 
     public enum TokenSource {
-        undefined, file, login, environment;
+        file, login, environment;
     }
 
-    private AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
-    private final String token;
+    private final AsyncHttpClient asyncHttpClient;
 
-    public VaultToken(ConfigProperties configProperties, AsyncHttpClient asyncHttpClient) {
+    public VaultTokenReader(final AsyncHttpClient asyncHttpClient) {
         this.asyncHttpClient = asyncHttpClient;
-        switch(configProperties.getTokenSource()) {
+    }
+
+    public String readVaultToken(ConfigProperties configProperties) {
+        switch (configProperties.getTokenSource()) {
             case login:
-                this.token = readTokenFromLogin(configProperties.getBaseUrl(), configProperties.getAppId(), configProperties.getUserId());
-                break;
+                return readTokenFromLogin(configProperties.getBaseUrl(), configProperties.getAppId(), configProperties.getUserId());
             case file:
                 String fileToken = configProperties.getFileToken();
                 if (StringUtils.isEmpty(fileToken)) {
                     fileToken = configProperties.getDefaultVaultTokenFileName();
-                 }
-                this.token = readTokenFromFile(fileToken);
-                break;
+                }
+                return readTokenFromFile(fileToken);
             case environment:
-                this.token = readTokenFromEnv(configProperties.getEnvironmentToken());
-                break;
+                return readTokenFromEnv(configProperties.getEnvironmentToken());
             default:
-                this.token = null;
-                break;
+                throw new IllegalArgumentException("no tokenSource set");
         }
-    }
-
-    public String getToken() {
-        return token;
     }
 
     protected String readTokenFromFile(String fileName) {
         try {
             File tokenFile = new File(fileName);
-            if (! tokenFile.exists() || !tokenFile.canRead()) {
+            if (!tokenFile.exists() || !tokenFile.canRead()) {
                 throw new RuntimeException(String.format("Can not read tokenfile from %s", fileName));
             }
             return new String(Files.readAllBytes(Paths.get(fileName)), "UTF-8").replaceAll("\\s+", "");
-
         } catch (IOException e) {
-
+            throw new UncheckedIOException(e);
         }
-        return "";
     }
 
     public String readTokenFromEnv(final String env) {
@@ -69,7 +62,6 @@ public class VaultToken {
     }
 
     public String readTokenFromLogin(final String vaultBaseUrl, final String appId, final String userId) {
-        String token;
         try {
             final Response response = asyncHttpClient
                     .preparePost(vaultBaseUrl + "/v1/auth/app-id/login")
@@ -82,13 +74,11 @@ public class VaultToken {
             }
             LOG.info("login to vault successful");
 
-            token = extractToken(response.getResponseBody());
+            return extractToken(response.getResponseBody());
         } catch (ExecutionException | InterruptedException | IOException e) {
-            token = null;
             LOG.error("could not retrieve token from vault", e);
             throw new RuntimeException(e);
         }
-        return token;
     }
 
     private static String createAuthBody(final String appId, final String userId) {

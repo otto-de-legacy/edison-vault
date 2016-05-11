@@ -16,19 +16,19 @@ public class VaultClient {
 
     private final String vaultBaseUrl;
     private final String secretPath;
-    private final VaultToken vaultToken;
+    private final String vaultToken;
 
     protected AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
 
-    public static VaultClient vaultClient(final ConfigProperties configProperties, VaultToken vaultToken) {
+    public static VaultClient vaultClient(final ConfigProperties configProperties, String vaultToken) {
         return vaultClient(configProperties.getBaseUrl(), configProperties.getSecretPath(), vaultToken);
     }
 
-    public static VaultClient vaultClient(final String vaultBaseUrl, final String secretPath, final VaultToken vaultToken) {
+    public static VaultClient vaultClient(final String vaultBaseUrl, final String secretPath, final String vaultToken) {
         return new VaultClient(vaultBaseUrl, secretPath, vaultToken);
     }
 
-    private VaultClient(final String vaultBaseUrl, final String secretPath, final VaultToken vaultToken) {
+    private VaultClient(final String vaultBaseUrl, final String secretPath, final String vaultToken) {
         this.vaultBaseUrl = removeTrailingSlash(vaultBaseUrl);
         this.secretPath = removeLeadingSlash(removeTrailingSlash(secretPath));
         this.vaultToken = vaultToken;
@@ -39,12 +39,12 @@ public class VaultClient {
             final String url = vaultBaseUrl + "/v1/" + secretPath + "/" + key;
             final Response response = asyncHttpClient
                     .prepareGet(url)
-                    .setHeader("X-Vault-Token", vaultToken.getToken())
+                    .setHeader("X-Vault-Token", vaultToken)
                     .execute()
                     .get();
             if ((response.getStatusCode() != 200)) {
-                LOG.error("can't read vault property '{}' with token '{}' from url '{}'", key, vaultToken.getToken(), url);
-                throw new RuntimeException(String.format("read of vault property '%s' with token '%s' from url '%s' failed, return code is '%s'", key, vaultToken.getToken(), url, response.getStatusCode()));
+                LOG.error("can't read vault property '{}' with token '{}' from url '{}'", key, vaultToken, url);
+                throw new RuntimeException(String.format("read of vault property '%s' with token '%s' from url '%s' failed, return code is '%s'", key, vaultToken, url, response.getStatusCode()));
             }
             LOG.info("read of vault property '{}' successful", key);
 

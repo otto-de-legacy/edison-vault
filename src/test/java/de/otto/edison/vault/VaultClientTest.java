@@ -17,13 +17,12 @@ public class VaultClientTest {
 
     private VaultClient testee;
     private AsyncHttpClient asyncHttpClient;
-    private VaultToken vaultToken;
+    private VaultTokenReader vaultTokenReader;
     private ConfigProperties configProperties;
 
     @BeforeMethod
     public void setUp() throws Exception {
         asyncHttpClient = mock(AsyncHttpClient.class);
-        vaultToken = mock(VaultToken.class);
         configProperties = mock(ConfigProperties.class);
     }
 
@@ -33,14 +32,13 @@ public class VaultClientTest {
         when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
         when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
 
-        testee = vaultClient(configProperties, vaultToken);
+        testee = vaultClient(configProperties, "someClientToken");
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
         AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
-        when(vaultToken.getToken()).thenReturn("someClientToken");
         when(response.getStatusCode()).thenReturn(200);
         when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someValue"));
         when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
@@ -65,14 +63,13 @@ public class VaultClientTest {
         when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
         when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
 
-        testee = vaultClient(configProperties, vaultToken);
+        testee = vaultClient(configProperties, "someClientToken");
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
         AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
-        when(vaultToken.getToken()).thenReturn("someClientToken");
         when(response.getResponseBody()).thenReturn(null);
         when(response.getStatusCode()).thenReturn(500);
         when(asyncHttpClient.prepareGet("http://someBaseUrl/v1/someSecretPath/someKey")).thenReturn(boundRequestBuilder);
@@ -96,7 +93,7 @@ public class VaultClientTest {
         when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
         when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
 
-        testee = vaultClient(configProperties, vaultToken);
+        testee = vaultClient(configProperties, "someClientToken");
         testee.asyncHttpClient = asyncHttpClient;
 
         // when
@@ -112,7 +109,7 @@ public class VaultClientTest {
         when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
         when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
 
-        testee = vaultClient(configProperties, vaultToken);
+        testee = vaultClient(configProperties, "someClientToken");
         testee.asyncHttpClient = asyncHttpClient;
 
         // when

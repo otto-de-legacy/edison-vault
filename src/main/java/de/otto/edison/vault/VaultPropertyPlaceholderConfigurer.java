@@ -20,7 +20,7 @@ public class VaultPropertyPlaceholderConfigurer extends PropertySourcesPlacehold
     public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) throws BeansException {
         ConfigProperties configProperties = new ConfigProperties(environment);
         if (configProperties.isEnabled()) {
-            VaultReader vaultReader = new VaultReader(configProperties, vaultClient(configProperties, new VaultToken(configProperties, new AsyncHttpClient())));
+            VaultReader vaultReader = new VaultReader(configProperties, vaultClient(configProperties, new VaultTokenReader(new AsyncHttpClient()).readVaultToken(configProperties)));
             setProperties(vaultReader.fetchPropertiesFromVault());
         }
         super.postProcessBeanFactory(beanFactory);
