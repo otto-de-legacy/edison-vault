@@ -21,7 +21,11 @@ public class VaultClient {
     protected AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
 
     public static VaultClient vaultClient(final ConfigProperties configProperties, VaultToken vaultToken) {
-        return new VaultClient(configProperties.getBaseUrl(), configProperties.getSecretPath(), vaultToken);
+        return vaultClient(configProperties.getBaseUrl(), configProperties.getSecretPath(), vaultToken);
+    }
+
+    public static VaultClient vaultClient(final String vaultBaseUrl, final String secretPath, final VaultToken vaultToken) {
+        return new VaultClient(vaultBaseUrl, secretPath, vaultToken);
     }
 
     private VaultClient(final String vaultBaseUrl, final String secretPath, final VaultToken vaultToken) {
@@ -58,14 +62,14 @@ public class VaultClient {
         return data.get("value");
     }
 
-    private String removeTrailingSlash(final String url){
+    private String removeTrailingSlash(final String url) {
         if (url.endsWith("/")) {
             return url.substring(0, url.length() - 1);
         }
         return url;
     }
 
-    private String removeLeadingSlash(final String url){
+    private String removeLeadingSlash(final String url) {
         if (url.startsWith("/")) {
             return url.substring(1);
         }
