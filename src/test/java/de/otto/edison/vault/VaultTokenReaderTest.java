@@ -35,7 +35,7 @@ public class VaultTokenReaderTest extends PowerMockTestCase {
     public void shouldGetTokenFromSystemEnvironment() throws Exception {
         // given
         mockStatic(System.class);
-        when(configProperties.getTokenSource()).thenReturn(VaultTokenReader.TokenSource.environment);
+        when(configProperties.getTokenSource()).thenReturn("environment");
         when(configProperties.getEnvironmentToken()).thenReturn("SOME_SYSTEM_ENV_VARIABLE");
         when(System.getenv("SOME_SYSTEM_ENV_VARIABLE")).thenReturn("mySecretAccessToken");
 
@@ -61,7 +61,7 @@ public class VaultTokenReaderTest extends PowerMockTestCase {
         when(listenableFuture.get()).thenReturn(response);
 
         // when
-        when(configProperties.getTokenSource()).thenReturn(VaultTokenReader.TokenSource.login);
+        when(configProperties.getTokenSource()).thenReturn("login");
         when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
         when(configProperties.getAppId()).thenReturn("someAppId");
         when(configProperties.getUserId()).thenReturn("someUserId");
@@ -86,7 +86,7 @@ public class VaultTokenReaderTest extends PowerMockTestCase {
 
         // when
         try {
-            when(configProperties.getTokenSource()).thenReturn(VaultTokenReader.TokenSource.login);
+            when(configProperties.getTokenSource()).thenReturn("login");
             when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
             when(configProperties.getAppId()).thenReturn("someAppId");
             when(configProperties.getUserId()).thenReturn("someUserId");
@@ -99,11 +99,39 @@ public class VaultTokenReaderTest extends PowerMockTestCase {
     }
 
     @Test
+    public void shouldThrowIllegalArgumentExceptionIfTokenSourceIsNotSet() throws Exception {
+        // given
+
+        // when
+        try {
+            new VaultTokenReader(asyncHttpClient).readVaultToken(configProperties);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // then
+            assertThat(e.getMessage(), is("tokenSource not set"));
+        }
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionIfTokenSourceIsUndefined() throws Exception {
+        // given
+        when(configProperties.getTokenSource()).thenReturn("someSource");
+        // when
+        try {
+            new VaultTokenReader(asyncHttpClient).readVaultToken(configProperties);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // then
+            assertThat(e.getMessage(), is("tokenSource is undefined"));
+        }
+    }
+
+    @Test
     public void shouldReadTokenFromFile() throws Exception {
         String tokenFileName = "./someTestFile";
         try {
             createTokenFile(tokenFileName, "2434c862-c01c-4bdc-e862-9ba9afceab32");
-            when(configProperties.getTokenSource()).thenReturn(VaultTokenReader.TokenSource.file);
+            when(configProperties.getTokenSource()).thenReturn("file");
             when(configProperties.getFileToken()).thenReturn(tokenFileName);
 
             assertThat(new VaultTokenReader(asyncHttpClient).readVaultToken(configProperties), is("2434c862-c01c-4bdc-e862-9ba9afceab32"));

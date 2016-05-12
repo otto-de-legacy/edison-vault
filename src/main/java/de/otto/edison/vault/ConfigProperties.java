@@ -12,7 +12,7 @@ public class ConfigProperties {
     private final String baseUrl;
     private final String secretPath;
     private final List<String> properties;
-    private final VaultTokenReader.TokenSource tokenSource;
+    private final String tokenSource;
     private final String environmentToken;
     private final String fileToken;
     private final String appId;
@@ -25,8 +25,7 @@ public class ConfigProperties {
         baseUrl = StringUtils.isEmpty(baseUrlProperty) ? getVaultAddrFromEnv() : baseUrlProperty;
         secretPath = environment.getProperty("edison.vault.secret-path");
         properties = splitVaultPropertyKeys(environment.getProperty("edison.vault.properties"));
-        final String tokenSourceProperty = environment.getProperty("edison.vault.token-source");
-        tokenSource = VaultTokenReader.TokenSource.valueOf(tokenSourceProperty == null ? "undefined" : tokenSourceProperty);
+        tokenSource = environment.getProperty("edison.vault.token-source");
         environmentToken = environment.getProperty("edison.vault.environment-token");
         fileToken = environment.getProperty("edison.vault.file-token");
         appId = environment.getProperty("edison.vault.appid");
@@ -51,7 +50,7 @@ public class ConfigProperties {
         return properties;
     }
 
-    public VaultTokenReader.TokenSource getTokenSource() {
+    public String getTokenSource() {
         return tokenSource;
     }
 
@@ -97,7 +96,7 @@ public class ConfigProperties {
         if (baseUrl != null ? !baseUrl.equals(that.baseUrl) : that.baseUrl != null) return false;
         if (secretPath != null ? !secretPath.equals(that.secretPath) : that.secretPath != null) return false;
         if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
-        if (tokenSource != that.tokenSource) return false;
+        if (tokenSource != null ? !tokenSource.equals(that.tokenSource) : that.tokenSource != null) return false;
         if (environmentToken != null ? !environmentToken.equals(that.environmentToken) : that.environmentToken != null)
             return false;
         if (fileToken != null ? !fileToken.equals(that.fileToken) : that.fileToken != null) return false;
@@ -129,7 +128,7 @@ public class ConfigProperties {
                 ", baseUrl='" + baseUrl + '\'' +
                 ", secretPath='" + secretPath + '\'' +
                 ", properties=" + properties +
-                ", tokenSource=" + tokenSource +
+                ", tokenSource='" + tokenSource + '\'' +
                 ", environmentToken='" + environmentToken + '\'' +
                 ", fileToken='" + fileToken + '\'' +
                 ", appId='" + appId + '\'' +

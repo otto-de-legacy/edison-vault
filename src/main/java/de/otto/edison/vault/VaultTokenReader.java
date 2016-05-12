@@ -18,10 +18,6 @@ import java.util.concurrent.ExecutionException;
 public class VaultTokenReader {
     private static final Logger LOG = LoggerFactory.getLogger(VaultTokenReader.class);
 
-    public enum TokenSource {
-        file, login, environment;
-    }
-
     private final AsyncHttpClient asyncHttpClient;
 
     public VaultTokenReader(final AsyncHttpClient asyncHttpClient) {
@@ -29,19 +25,22 @@ public class VaultTokenReader {
     }
 
     public String readVaultToken(ConfigProperties configProperties) {
+        if(configProperties.getTokenSource() == null) {
+            throw new IllegalArgumentException("tokenSource not set");
+        }
         switch (configProperties.getTokenSource()) {
-            case login:
+            case "login":
                 return readTokenFromLogin(configProperties.getBaseUrl(), configProperties.getAppId(), configProperties.getUserId());
-            case file:
+            case "file":
                 String fileToken = configProperties.getFileToken();
                 if (StringUtils.isEmpty(fileToken)) {
                     fileToken = configProperties.getDefaultVaultTokenFileName();
                 }
                 return readTokenFromFile(fileToken);
-            case environment:
+            case "environment":
                 return readTokenFromEnv(configProperties.getEnvironmentToken());
             default:
-                throw new IllegalArgumentException("no tokenSource set");
+                throw new IllegalArgumentException("tokenSource is undefined");
         }
     }
 
