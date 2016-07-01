@@ -35,6 +35,10 @@ public class VaultClient {
     }
 
     public String read(final String key) {
+        return readField(key, "value");
+    }
+
+    public String readField(final String key, final String field) {
         try {
             final String url = vaultBaseUrl + "/v1/" + secretPath + "/" + key;
             final Response response = asyncHttpClient
@@ -48,18 +52,18 @@ public class VaultClient {
             }
             LOG.info("read of vault property '{}' successful", key);
 
-            return extractProperty(response.getResponseBody());
+            return extractField(response.getResponseBody(), field);
         } catch (ExecutionException | InterruptedException | IOException e) {
             LOG.error(String.format("extract of vault property '%s' failed", key), e);
             throw new RuntimeException(e);
         }
     }
 
-    private String extractProperty(final String responseBody) {
+    private String extractField(final String responseBody, final String field) {
         Map<String, Object> responseMap = new Gson().fromJson(responseBody, Map.class);
         Map<String, String> data = (Map<String, String>) responseMap.get("data");
 
-        return data.get("value");
+        return data.get(field);
     }
 
     private String removeTrailingSlash(final String url) {
