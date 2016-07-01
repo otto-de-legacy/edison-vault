@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class VaultClient {
@@ -35,10 +36,10 @@ public class VaultClient {
     }
 
     public String read(final String key) {
-        return readField(key, "value");
+        return readField(key, "value").orElse(null);
     }
 
-    public String readField(final String key, final String field) {
+    public Optional<String> readField(final String key, final String field) {
         try {
             final String url = vaultBaseUrl + "/v1/" + secretPath + "/" + key;
             final Response response = asyncHttpClient
@@ -59,11 +60,11 @@ public class VaultClient {
         }
     }
 
-    private String extractField(final String responseBody, final String field) {
+    private Optional<String> extractField(final String responseBody, final String field) {
         Map<String, Object> responseMap = new Gson().fromJson(responseBody, Map.class);
         Map<String, String> data = (Map<String, String>) responseMap.get("data");
 
-        return data.get(field);
+        return Optional.ofNullable(data.get(field));
     }
 
     private String removeTrailingSlash(final String url) {

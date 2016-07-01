@@ -6,6 +6,8 @@ import com.ning.http.client.Response;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.Optional;
+
 import static de.otto.edison.vault.VaultClient.vaultClient;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -55,6 +57,33 @@ public class VaultClientTest {
     }
 
     @Test
+    public void shouldReturnNullIfNoFieldValueExists() throws Exception {
+        // given
+        when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
+        when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
+
+        testee = vaultClient(configProperties, "someClientToken");
+        testee.asyncHttpClient = asyncHttpClient;
+
+        Response response = mock(Response.class);
+        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        ListenableFuture listenableFuture = mock(ListenableFuture.class);
+
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someField", "someValue"));
+        when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
+        when(listenableFuture.get()).thenReturn(response);
+
+        // when
+        String fieldValue = testee.read("someKey");
+
+        // then
+        assertThat(fieldValue, is(nullValue()));
+    }
+
+    @Test
     public void shouldReadAnArbitraryField() throws Exception {
         // given
         when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
@@ -75,14 +104,15 @@ public class VaultClientTest {
         when(listenableFuture.get()).thenReturn(response);
 
         // when
-        String fieldValue = testee.readField("someKey", "someFieldOtherThanValue");
+        Optional<String> fieldValue = testee.readField("someKey", "someFieldOtherThanValue");
 
         // then
-        assertThat(fieldValue, is("someValue"));
+        assertThat(fieldValue.isPresent(), is(true));
+        assertThat(fieldValue.get(), is("someValue"));
     }
 
     @Test
-    public void shouldReturnNullForANonExistingField() throws Exception {
+    public void shouldReturnEmptyOptionalForANonExistingField() throws Exception {
         // given
         when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
         when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
@@ -102,10 +132,10 @@ public class VaultClientTest {
         when(listenableFuture.get()).thenReturn(response);
 
         // when
-        String fieldValue = testee.readField("someKey", "someUnknownField");
+        Optional<String> fieldValue = testee.readField("someKey", "someUnknownField");
 
         // then
-        assertThat(fieldValue, is(nullValue()));
+        assertThat(fieldValue.isPresent(), is(false));
     }
 
     private String createReadResponse(final String key, final String field, final String value) {
