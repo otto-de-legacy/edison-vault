@@ -6,7 +6,10 @@ import com.ning.http.client.Response;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.Optional;
+
 import static de.otto.edison.vault.VaultClient.vaultClient;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.eq;
@@ -27,7 +30,7 @@ public class VaultClientTest {
     }
 
     @Test
-    public void shouldReadProperty() throws Exception {
+    public void shouldReadTheDefaultFieldValue() throws Exception {
         // given
         when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
         when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
@@ -40,7 +43,7 @@ public class VaultClientTest {
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someValue"));
+        when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "value", "someValue"));
         when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
@@ -53,8 +56,90 @@ public class VaultClientTest {
         assertThat(propertyValue, is("someValue"));
     }
 
-    private String createReadResponse(final String key, final String value) {
-        return "{\"lease_id\":\"develop/p13n/" + key + "/b74f148e-12de-dbfb-b03f-c950c587e8ea\",\"renewable\":false,\"lease_duration\":2592000,\"data\":{\"value\":\"" + value + "\"},\"auth\":null}";
+    @Test
+    public void shouldReturnNullIfNoFieldValueExists() throws Exception {
+        // given
+        when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
+        when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
+
+        testee = vaultClient(configProperties, "someClientToken");
+        testee.asyncHttpClient = asyncHttpClient;
+
+        Response response = mock(Response.class);
+        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        ListenableFuture listenableFuture = mock(ListenableFuture.class);
+
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someField", "someValue"));
+        when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
+        when(listenableFuture.get()).thenReturn(response);
+
+        // when
+        String fieldValue = testee.read("someKey");
+
+        // then
+        assertThat(fieldValue, is(nullValue()));
+    }
+
+    @Test
+    public void shouldReadAnArbitraryField() throws Exception {
+        // given
+        when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
+        when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
+
+        testee = vaultClient(configProperties, "someClientToken");
+        testee.asyncHttpClient = asyncHttpClient;
+
+        Response response = mock(Response.class);
+        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        ListenableFuture listenableFuture = mock(ListenableFuture.class);
+
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someFieldOtherThanValue", "someValue"));
+        when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
+        when(listenableFuture.get()).thenReturn(response);
+
+        // when
+        Optional<String> fieldValue = testee.readField("someKey", "someFieldOtherThanValue");
+
+        // then
+        assertThat(fieldValue.isPresent(), is(true));
+        assertThat(fieldValue.get(), is("someValue"));
+    }
+
+    @Test
+    public void shouldReturnEmptyOptionalForANonExistingField() throws Exception {
+        // given
+        when(configProperties.getBaseUrl()).thenReturn("http://someBaseUrl");
+        when(configProperties.getSecretPath()).thenReturn("/someSecretPath");
+
+        testee = vaultClient(configProperties, "someClientToken");
+        testee.asyncHttpClient = asyncHttpClient;
+
+        Response response = mock(Response.class);
+        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        ListenableFuture listenableFuture = mock(ListenableFuture.class);
+
+        when(response.getStatusCode()).thenReturn(200);
+        when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someField", "someValue"));
+        when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
+        when(listenableFuture.get()).thenReturn(response);
+
+        // when
+        Optional<String> fieldValue = testee.readField("someKey", "someUnknownField");
+
+        // then
+        assertThat(fieldValue.isPresent(), is(false));
+    }
+
+    private String createReadResponse(final String key, final String field, final String value) {
+        return "{\"lease_id\":\"develop/p13n/" + key + "/b74f148e-12de-dbfb-b03f-c950c587e8ea\",\"renewable\":false,\"lease_duration\":2592000,\"data\":{\"" + field + "\":\"" + value + "\"},\"auth\":null}";
     }
 
     @Test

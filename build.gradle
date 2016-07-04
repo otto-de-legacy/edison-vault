@@ -111,6 +111,15 @@ doRelease << {
 }
 
 uploadArchives {
+    if (!project.hasProperty("sonatypeUsername")) {
+        ext.sonatypeUsername = ""
+        logger.error "No sonatypeUsername defined in gradle.properties. Will not be able to upload archives."
+    }
+
+    if (!project.hasProperty("sonatypePassword")) {
+        ext.sonatypePassword = ""
+        logger.error "No sonatypePassword defined in gradle.properties. Will not be able to upload archives."
+    }
     repositories {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
