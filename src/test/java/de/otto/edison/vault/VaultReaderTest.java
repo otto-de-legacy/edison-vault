@@ -5,9 +5,7 @@ import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -31,13 +29,19 @@ public class VaultReaderTest extends PowerMockTestCase {
     @Test
     public void shouldReadPropertiesFromVaultAndSetThem() throws Exception {
         // given
-        List<String> propertiesToRead = new ArrayList();
+        Set<String> propertiesToRead = new HashSet<>();
         propertiesToRead.add("someKey1");
         propertiesToRead.add("someKey2");
+        propertiesToRead.add("someKey3");
 
         when(configProperties.getProperties()).thenReturn(propertiesToRead);
-        when(vaultClient.read("someKey1")).thenReturn("someValue1");
-        when(vaultClient.read("someKey2")).thenReturn("someValue2");
+        when(configProperties.getPropertyFieldnames("someKey1")).thenReturn(new HashSet<String>(Arrays.asList("value")));
+        when(configProperties.getPropertyFieldnames("someKey2")).thenReturn(new HashSet<String>(Arrays.asList("value")));
+        when(configProperties.getPropertyFieldnames("someKey3")).thenReturn(new HashSet<String>(Arrays.asList("field3", "field3_2")));
+        when(vaultClient.readField("someKey1", "value")).thenReturn(Optional.of("someValue1"));
+        when(vaultClient.readField("someKey2", "value")).thenReturn(Optional.of("someValue2"));
+        when(vaultClient.readField("someKey3", "field3")).thenReturn(Optional.of("someValue3"));
+        when(vaultClient.readField("someKey3", "field3_2")).thenReturn(Optional.of("someValue3_2"));
 
         // when
         Properties properties = testee.fetchPropertiesFromVault();
@@ -45,10 +49,13 @@ public class VaultReaderTest extends PowerMockTestCase {
         // then
         Properties expectedProperties = new Properties();
         expectedProperties.setProperty("someKey1", "someValue1");
+        expectedProperties.setProperty("someKey1@value", "someValue1");
         expectedProperties.setProperty("someKey2", "someValue2");
+        expectedProperties.setProperty("someKey2@value", "someValue2");
+        expectedProperties.setProperty("someKey3@field3", "someValue3");
+        expectedProperties.setProperty("someKey3@field3_2", "someValue3_2");
 
         assertThat(properties, is(expectedProperties));
     }
-
 
 }
