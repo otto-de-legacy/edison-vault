@@ -24,8 +24,13 @@ public class VaultReader {
     public Properties fetchPropertiesFromVault() {
         final Properties vaultProperties = new Properties();
         configProperties.getProperties().forEach(key -> {
-            final String trimmedKey = key.trim();
-            vaultProperties.setProperty(trimmedKey, vaultClient.read(trimmedKey));
+            configProperties.getPropertyFieldnames(key).forEach(field -> {
+                final String secret = vaultClient.readField(key, field).orElse(null);
+                if(field.equals("value")) {
+                    vaultProperties.setProperty(key, secret);
+                }
+                vaultProperties.setProperty(key + "@" + field, secret);
+            });
         });
         return vaultProperties;
     }

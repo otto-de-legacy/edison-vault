@@ -18,14 +18,16 @@ In Vault the App ID authentication backend has to be enabled. In this context tu
 created in Vault.
 
 Each property you want to save in vault must be created as a single secret under an individual secret path sharing the 
-same prefix. The last part of the secret-path will be the property key. The property value must be saved in the 
-underlying JSON-Property named "value".
+same prefix. The last part of the secret-path will be the property key. The property value can be saved in the 
+underlying JSON-Property named "value" or any other key, which must be declared in the properties with an '@' infix (e.g. secretKey@fieldname).
 
 Example
 
     GET http://yourVaultHostName:4001/v1/some/secret/path/secretOne 
     {
-      "value": "theSecretNumberOne"
+      "key1": "theSecretNumberOne",
+      "key2": "theOtherSecretNumberOne",
+      "value": "defaultSecretNumberOne"
     }
   
     GET http://yourVaultHostName:4001/v1/some/secret/path/secretTwo 
@@ -56,7 +58,7 @@ application.properties:
     edison.vault.enabled=true
     edison.vault.base-url=https://yourVaultHostName:8200
     edison.vault.secret-path=/some/secret/path/
-    edison.vault.properties=someVaultPropertyKey,someOtherVaultPropertyKey
+    edison.vault.properties=secretOne@key1,secretOne@key2,secretTwo,secretOne
     edison.vault.token-source=login
     edison.vault.appid=aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff
     edison.vault.userid=ffffffff-eeee-dddd-cccc-bbbbbbaaaaa
@@ -65,7 +67,7 @@ SomeClass.java:
 
     public class SomeClass {
         
-        @Value("${secretOne}")
+        @Value("${secretOne@key1}")
         private String theSecretNumberOne;
 
         public void someMethod(@Value("${secretTwo}") String theSecretNumberTwo) {
