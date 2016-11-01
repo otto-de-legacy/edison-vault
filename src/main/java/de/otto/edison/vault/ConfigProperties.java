@@ -3,10 +3,18 @@ package de.otto.edison.vault;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ConfigProperties {
+
     private final boolean enabled;
     private final String baseUrl;
     private final String secretPath;
@@ -23,7 +31,7 @@ public class ConfigProperties {
         final String baseUrlProperty = environment.getProperty("edison.vault.base-url");
         baseUrl = StringUtils.isEmpty(baseUrlProperty) ? getVaultAddrFromEnv() : baseUrlProperty;
         secretPath = environment.getProperty("edison.vault.secret-path");
-        properties = buildPropertyMap( splitVaultPropertyKeys(environment.getProperty("edison.vault.properties")));
+        properties = buildPropertyMap(splitVaultPropertyKeys(environment.getProperty("edison.vault.properties")));
         tokenSource = environment.getProperty("edison.vault.token-source");
         environmentToken = environment.getProperty("edison.vault.environment-token");
         fileToken = environment.getProperty("edison.vault.file-token");
@@ -81,14 +89,14 @@ public class ConfigProperties {
         if (StringUtils.isEmpty(properties)) {
             return new ArrayList<>();
         }
-        return Arrays.asList(properties.split(",")).stream().map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+        return Arrays.stream(properties.split(",")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
     }
 
     private Map<String, Set<String>> buildPropertyMap(List<String> properties) {
-        Map<String, Set<String>> result = new HashMap<>();
-        for (String property: properties) {
+        final Map<String, Set<String>> result = new HashMap<>();
+        for (final String property : properties) {
             final String[] keyAndFieldname = property.split("@");
-            if(keyAndFieldname.length > 0) {
+            if (keyAndFieldname.length > 0) {
                 final String key = keyAndFieldname[0];
                 final Set<String> fieldnames = result.getOrDefault(key, new HashSet<>());
                 if (keyAndFieldname.length > 1) {
@@ -104,23 +112,43 @@ public class ConfigProperties {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ConfigProperties that = (ConfigProperties) o;
 
-        if (enabled != that.enabled) return false;
-        if (baseUrl != null ? !baseUrl.equals(that.baseUrl) : that.baseUrl != null) return false;
-        if (secretPath != null ? !secretPath.equals(that.secretPath) : that.secretPath != null) return false;
-        if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
-        if (tokenSource != null ? !tokenSource.equals(that.tokenSource) : that.tokenSource != null) return false;
-        if (environmentToken != null ? !environmentToken.equals(that.environmentToken) : that.environmentToken != null)
+        if (enabled != that.enabled) {
             return false;
-        if (fileToken != null ? !fileToken.equals(that.fileToken) : that.fileToken != null) return false;
-        if (appId != null ? !appId.equals(that.appId) : that.appId != null) return false;
-        if (userId != null ? !userId.equals(that.userId) : that.userId != null) return false;
+        }
+        if (baseUrl != null ? !baseUrl.equals(that.baseUrl) : that.baseUrl != null) {
+            return false;
+        }
+        if (secretPath != null ? !secretPath.equals(that.secretPath) : that.secretPath != null) {
+            return false;
+        }
+        if (properties != null ? !properties.equals(that.properties) : that.properties != null) {
+            return false;
+        }
+        if (tokenSource != null ? !tokenSource.equals(that.tokenSource) : that.tokenSource != null) {
+            return false;
+        }
+        if (environmentToken != null ? !environmentToken.equals(that.environmentToken) : that.environmentToken != null) {
+            return false;
+        }
+        if (fileToken != null ? !fileToken.equals(that.fileToken) : that.fileToken != null) {
+            return false;
+        }
+        if (appId != null ? !appId.equals(that.appId) : that.appId != null) {
+            return false;
+        }
+        if (userId != null ? !userId.equals(that.userId) : that.userId != null) {
+            return false;
+        }
         return defaultVaultToken != null ? defaultVaultToken.equals(that.defaultVaultToken) : that.defaultVaultToken == null;
-
     }
 
     @Override
