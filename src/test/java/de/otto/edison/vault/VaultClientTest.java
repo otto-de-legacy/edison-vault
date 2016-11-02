@@ -21,7 +21,6 @@ public class VaultClientTest {
 
     private VaultClient testee;
     private AsyncHttpClient asyncHttpClient;
-    private VaultTokenReader vaultTokenReader;
     private ConfigProperties configProperties;
 
     @BeforeMethod
