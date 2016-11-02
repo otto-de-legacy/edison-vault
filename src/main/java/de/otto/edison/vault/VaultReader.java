@@ -11,8 +11,6 @@ public class VaultReader {
     private final ConfigProperties configProperties;
     private final VaultClient vaultClient;
 
-    private Logger LOG = LoggerFactory.getLogger(VaultReader.class);
-
     public VaultReader(final ConfigProperties configProperties, VaultClient vaultClient) {
         this.configProperties = configProperties;
         this.vaultClient = vaultClient;
