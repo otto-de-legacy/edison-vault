@@ -15,13 +15,13 @@ import static org.hamcrest.core.Is.is;
 @SpringApplicationConfiguration(classes = ExampleApplication.class)
 public class ExampleApplicationTests {
 
-    @Value("${keyOne}")
+    @Value("${keyOne.value}")
     private String secretOne;
 
-    @Value("${keyTwo}")
+    @Value("${keyTwo.value}")
     private String secretTwo;
 
-    @Value("${keyThree}")
+    @Value("${keyThree.value}")
     private String secretThree;
 
     @Test
