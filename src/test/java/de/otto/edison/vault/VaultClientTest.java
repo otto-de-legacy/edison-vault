@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 import java.util.Optional;
 
 import static de.otto.edison.vault.VaultClient.vaultClient;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -40,7 +41,7 @@ public class VaultClientTest {
 
         Response response = mock(Response.class);
         AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
-        ListenableFuture listenableFuture = mock(ListenableFuture.class);
+        ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
         when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "value", "someValue"));
@@ -50,7 +51,7 @@ public class VaultClientTest {
         when(listenableFuture.get()).thenReturn(response);
 
         // when
-        String propertyValue = testee.read("someKey");
+        String propertyValue = testee.readFields("someKey").get("value");
 
         // then
         assertThat(propertyValue, is("someValue"));
@@ -67,7 +68,7 @@ public class VaultClientTest {
 
         Response response = mock(Response.class);
         AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
-        ListenableFuture listenableFuture = mock(ListenableFuture.class);
+        ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
         when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someField", "someValue"));
@@ -77,7 +78,7 @@ public class VaultClientTest {
         when(listenableFuture.get()).thenReturn(response);
 
         // when
-        String fieldValue = testee.read("someKey");
+        String fieldValue = testee.readFields("someKey").get("value");
 
         // then
         assertThat(fieldValue, is(nullValue()));
@@ -94,7 +95,7 @@ public class VaultClientTest {
 
         Response response = mock(Response.class);
         AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
-        ListenableFuture listenableFuture = mock(ListenableFuture.class);
+        ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
         when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someFieldOtherThanValue", "someValue"));
@@ -104,11 +105,11 @@ public class VaultClientTest {
         when(listenableFuture.get()).thenReturn(response);
 
         // when
-        Optional<String> fieldValue = testee.readField("someKey", "someFieldOtherThanValue");
+        String fieldValue = testee.readFields("someKey").get("someFieldOtherThanValue");
 
         // then
-        assertThat(fieldValue.isPresent(), is(true));
-        assertThat(fieldValue.get(), is("someValue"));
+        assertThat(fieldValue, notNullValue());
+        assertThat(fieldValue, is("someValue"));
     }
 
     @Test
@@ -122,7 +123,7 @@ public class VaultClientTest {
 
         Response response = mock(Response.class);
         AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
-        ListenableFuture listenableFuture = mock(ListenableFuture.class);
+        ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
         when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someField", "someValue"));
@@ -132,10 +133,10 @@ public class VaultClientTest {
         when(listenableFuture.get()).thenReturn(response);
 
         // when
-        Optional<String> fieldValue = testee.readField("someKey", "someUnknownField");
+        String fieldValue = testee.readFields("someKey").get("someUnknownField");
 
         // then
-        assertThat(fieldValue.isPresent(), is(false));
+        assertThat(fieldValue, nullValue());
     }
 
     private String createReadResponse(final String key, final String field, final String value) {
@@ -153,7 +154,7 @@ public class VaultClientTest {
 
         Response response = mock(Response.class);
         AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
-        ListenableFuture listenableFuture = mock(ListenableFuture.class);
+        ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getResponseBody()).thenReturn(null);
         when(response.getStatusCode()).thenReturn(500);
@@ -164,7 +165,7 @@ public class VaultClientTest {
 
         // when
         try {
-            testee.read("someKey");
+            testee.readFields("someKey");
             fail();
         } catch (RuntimeException e) {
             // then
@@ -182,7 +183,7 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         // when
-        testee.read("someKey");
+        testee.readFields("someKey");
 
         // then
         verify(asyncHttpClient).prepareGet("http://someBaseUrl/v1/someSecretPath/someKey");
@@ -198,7 +199,7 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         // when
-        testee.read("someKey");
+        testee.readFields("someKey");
 
         // then
         verify(asyncHttpClient).prepareGet("http://someBaseUrl/v1/someSecretPath/someKey");
