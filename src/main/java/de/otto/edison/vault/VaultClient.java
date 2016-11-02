@@ -37,7 +37,12 @@ public class VaultClient {
 
     public Map<String,String> readFields(final String key) {
         try {
-            final String url = vaultBaseUrl + "/v1/" + secretPath + "/" + key;
+            final String url;
+            if (key != null && !key.isEmpty()) {
+                url = vaultBaseUrl + "/v1/" + secretPath + "/" + key;
+            } else {
+                url = vaultBaseUrl + "/v1/" + secretPath;
+            }
             final Response response = asyncHttpClient
                     .prepareGet(url)
                     .setHeader("X-Vault-Token", vaultToken)
