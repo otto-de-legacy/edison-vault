@@ -17,27 +17,57 @@ application.properties file. You can find them in the <a href="#properties">appl
 In Vault the App ID authentication backend has to be enabled. In this context tuples of app-ids and user-ids have to be 
 created in Vault.
 
-Each property you want to save in vault must be created as a single secret under an individual secret path sharing the 
-same prefix. The last part of the secret-path will be the property key. The property value can be saved in the 
-underlying JSON-Property named "value" or any other key, which must be declared in the properties with an '@' infix (e.g. secretKey@fieldname).
+For further vault documentation see <a href="http://www.vaultproject.io/">http://www.vaultproject.io/</a>
+
+## <a name="mapping">Spring property mapping</a>
+
+All properties you want to save in vault must be located under the same parent path. You can configure the parent path by
+setting the configuration property **edison.vault.secret-path**
+
+Each spring property you want to load from vault has to be added to the configuration property **edison.vault.properties**.
+
+An individual spring property is mapped to a vault path by the following scheme:
+
+1) Every dot (".") is replaced by a slash ("/").
+2) The part before the last slash is the sub-path of the property and has to exist in vault.
+3) The part after the last slash is the json field name of the vault value.
+
 
 Example
 
-    GET http://yourVaultHostName:4001/v1/some/secret/path/secretOne 
+    application.properties:
+        ...
+        edison.vault.secret-path=/my/secret/path/
+        edison.vault.properties=my-secret-value,my.secret.value,my.secret.othervalue
+        ...
+    
+    "my-secret-value" is mapped to:
+    GET http://yourVaultHostName:4001/v1/my/secret/path
     {
-      "key1": "theSecretNumberOne",
-      "key2": "theOtherSecretNumberOne",
-      "value": "defaultSecretNumberOne"
+      "my-secret-value": "theFirstSecretValueYouWant"
     }
-  
-    GET http://yourVaultHostName:4001/v1/some/secret/path/secretTwo 
+    
+    "my.secret.value" is mapped to:
+    GET http://yourVaultHostName:4001/v1/my/secret/path/my/secret/
     {
-      "value": "theSecretNumberTwo"
+        "value": "theSecondSecretValueYouWant"
+    }
+    
+    "my.secret.othervalue" is mapped to:
+    GET http://yourVaultHostName:4001/v1/my/secret/path/my/secret/
+    {
+        "othervalue": "theThirdSecretValueYouWant"
     }
 
-In this example you will get two properties: secretOne=theSecretNumberOne and secretTwo=theSecretNumberTwo
 
-For further vault documentation see <a href="http://www.vaultproject.io/">http://www.vaultproject.io/</a> 
+In this example you will get three spring properties with the following values:
+
+- my-secret-value=theFirstSecretValueYouWant
+- my.secret.value=theSecondSecretValueYouWant
+- my.secret.othervalue=theThirdSecretValueYouWant
+
+You see how the parent secret-path is used and how a spring property key is mapped to a vault path.
+Notice the difference between *my-secret-value* and *my.secret.value*.
 
 ## <a name="properties">application.properties configuration</a>
 
@@ -57,7 +87,7 @@ application.properties:
 
     edison.vault.enabled=true
     edison.vault.base-url=https://yourVaultHostName:8200
-    edison.vault.secret-path=/some/secret/path/
+    edison.vault.secret-path=/my/secret/path/
     edison.vault.properties=secretOne@key1,secretOne@key2,secretTwo,secretOne
     edison.vault.token-source=login
     edison.vault.appid=aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff
