@@ -13,21 +13,21 @@ import static org.hamcrest.core.Is.is;
 @ComponentScan("de.otto.edison.vault")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = ExampleApplication.class)
-public class ExampleApplicationTests  {
+public class ExampleApplicationTests {
 
-    @Value("${keyOne}")
+    @Value("${keyOne.value}")
     private String secretOne;
 
-    @Value("${keyTwo}")
+    @Value("${keyTwo.value}")
     private String secretTwo;
 
-    @Value("${keyThree}")
+    @Value("${keyThree.value}")
     private String secretThree;
 
-	@Test
-	public void shouldHaveWiredValues() {
-		assertThat(secretOne, is("secretNumberOne"));
-		assertThat(secretTwo, is("secretNumberTwo"));
-		assertThat(secretThree, is("secretNumberThree"));
-	}
+    @Test
+    public void shouldHaveWiredValues() {
+        assertThat(secretOne, is("secretNumberOne"));
+        assertThat(secretTwo, is("secretNumberTwo"));
+        assertThat(secretThree, is("secretNumberThree"));
+    }
 }

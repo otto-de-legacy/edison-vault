@@ -35,13 +35,14 @@ public class VaultClient {
         this.vaultToken = vaultToken;
     }
 
-    public String read(final String key) {
-        return readField(key, "value").orElse(null);
-    }
-
-    public Optional<String> readField(final String key, final String field) {
+    public Map<String,String> readFields(final String key) {
         try {
-            final String url = vaultBaseUrl + "/v1/" + secretPath + "/" + key;
+            final String url;
+            if (key != null && !key.isEmpty()) {
+                url = vaultBaseUrl + "/v1/" + secretPath + "/" + key;
+            } else {
+                url = vaultBaseUrl + "/v1/" + secretPath;
+            }
             final Response response = asyncHttpClient
                     .prepareGet(url)
                     .setHeader("X-Vault-Token", vaultToken)
@@ -53,18 +54,16 @@ public class VaultClient {
             }
             LOG.info("read of vault property '{}' successful", key);
 
-            return extractField(response.getResponseBody(), field);
+            return extractFields(response.getResponseBody());
         } catch (ExecutionException | InterruptedException | IOException e) {
             LOG.error(String.format("extract of vault property '%s' failed", key), e);
             throw new RuntimeException(e);
         }
     }
 
-    private Optional<String> extractField(final String responseBody, final String field) {
+    private Map<String,String> extractFields(final String responseBody) {
         Map<String, Object> responseMap = new Gson().fromJson(responseBody, Map.class);
-        Map<String, String> data = (Map<String, String>) responseMap.get("data");
-
-        return Optional.ofNullable(data.get(field));
+        return (Map<String, String>) responseMap.get("data");
     }
 
     private String removeTrailingSlash(final String url) {
