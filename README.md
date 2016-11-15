@@ -1,5 +1,5 @@
 # edison-vault
-Library to access Vault servers and inject secrets into Edison services.
+Library to access Vault servers and inject secrets into Spring-Boot applications.
 
 [![Build Status](https://travis-ci.org/otto-de/edison-vault.svg?branch=master)](https://travis-ci.org/otto-de/edison-vault) 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.otto.edison/edison-vault/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.otto.edison/edison-vault)
@@ -21,16 +21,11 @@ For further vault documentation see <a href="http://www.vaultproject.io/">http:/
 
 ## <a name="mapping">Spring property mapping</a>
 
-All properties you want to save in vault must be located under the same parent path. You can configure the parent path by
+All properties you want to load from vault must be located under the same parent path. You must configure the parent path by
 setting the configuration property **edison.vault.secret-path**
 
-Each spring property you want to load from vault has to be added to the configuration property **edison.vault.properties**.
-
-An individual spring property is mapped to a vault path by the following scheme:
-
-1) Every dot (".") is replaced by a slash ("/").
-2) The part before the last slash is the sub-path of the property and has to exist in vault.
-3) The part after the last slash is the json field name of the vault value.
+After loading all properties (e.g. from application.properties), the VaultPropertyPlaceholderConfigurer scans the values.
+If a value starts with **vault://** it is considered as a vault property which has to be read from vault.
 
 
 Example
@@ -38,43 +33,53 @@ Example
     application.properties:
         ...
         edison.vault.secret-path=/my/secret/path/
-        edison.vault.properties=my-secret-value,my.secret.value,my.secret.othervalue
         ...
     
-    "my-secret-value" is mapped to:
-    GET http://yourVaultHostName:4001/v1/my/secret/path
-    {
-      "my-secret-value": "theFirstSecretValueYouWant"
-    }
+        foo.bar.secret1=vault://my/secret#value
+        # Vault-Call:
+        # GET http://yourVaultHostName:4001/v1/my/secret/path/my/secret/
+        # {
+        #    "value": "theFirstSecretValueYouWant"
+        # }
     
-    "my.secret.value" is mapped to:
-    GET http://yourVaultHostName:4001/v1/my/secret/path/my/secret/
-    {
-        "value": "theSecondSecretValueYouWant"
-    }
+        foo.bar.secret2=vault://my.secret#value
+        # Vault-Call:
+        # GET http://yourVaultHostName:4001/v1/my/secret/path/my.secret/
+        # {
+        #    "value": "theSecondSecretValueYouWant"
+        # }
     
-    "my.secret.othervalue" is mapped to:
-    GET http://yourVaultHostName:4001/v1/my/secret/path/my/secret/
-    {
-        "othervalue": "theThirdSecretValueYouWant"
-    }
+        foo.bar.secret3=vault://my/secret#othervalue
+        # Vault-Call:
+        # GET http://yourVaultHostName:4001/v1/my/secret/path/my/secret/
+        # {
+        #    "othervalue": "theThirdSecretValueYouWant"
+        # }
+        
+        foo.bar.secret4=vault://#value
+        # Vault-Call:
+        # GET http://yourVaultHostName:4001/v1/my/secret/path/
+        # {
+        #    "value": "theFourthSecretValueYouWant"
+        # }
 
 
 In this example you will get three spring properties with the following values:
 
-- my-secret-value=theFirstSecretValueYouWant
-- my.secret.value=theSecondSecretValueYouWant
-- my.secret.othervalue=theThirdSecretValueYouWant
+- foo.bar.secret1=theFirstSecretValueYouWant
+- foo.bar.secret2=theSecondSecretValueYouWant
+- foo.bar.secret3=theThirdSecretValueYouWant
+- foo.bar.secret4=theFourthSecretValueYouWant
 
 You see how the parent secret-path is used and how a spring property key is mapped to a vault path.
-Notice the difference between *my-secret-value* and *my.secret.value*.
+The part before the '#' is considered the path of the secret, the part after the '#' is the json-key of the
+value you want to load.
 
 ## <a name="properties">application.properties configuration</a>
 
 - edison.vault.enabled              enable edison-vault (default=false)
 - edison.vault.base-url             url of vault server
 - edison.vault.secret-path          vault secret path  
-- edison.vault.properties           comma-separated list of property keys to fetch from vault (default=empty).
 - edison.vault.token-source         how to access the vault server token -- possible values are login,file or environment
 - edison.vault.appid                app id to access the vault server (valid for token-source=login)
 - edison.vault.userid               user id to access the vault server (valid for token-source=login)
@@ -88,7 +93,6 @@ application.properties:
     edison.vault.enabled=true
     edison.vault.base-url=https://yourVaultHostName:8200
     edison.vault.secret-path=/my/secret/path/
-    edison.vault.properties=secretOne@key1,secretOne@key2,secretTwo,secretOne
     edison.vault.token-source=login
     edison.vault.appid=aaaaaaaa-bbbb-cccc-dddd-eeeeeeffffff
     edison.vault.userid=ffffffff-eeee-dddd-cccc-bbbbbbaaaaa
@@ -97,10 +101,10 @@ SomeClass.java:
 
     public class SomeClass {
         
-        @Value("${secretOne@key1}")
+        @Value("${foo.bar.secret1}")
         private String theSecretNumberOne;
 
-        public void someMethod(@Value("${secretTwo}") String theSecretNumberTwo) {
+        public void someMethod(@Value("${foo.bar.secret2}") String theSecretNumberTwo) {
 
         }
     }

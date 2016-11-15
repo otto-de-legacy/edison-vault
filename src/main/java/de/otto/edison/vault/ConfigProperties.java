@@ -1,10 +1,12 @@
 package de.otto.edison.vault;
 
+import javafx.util.Pair;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,7 +15,6 @@ public class ConfigProperties {
     private final boolean enabled;
     private final String baseUrl;
     private final String secretPath;
-    private final Set<String> properties;
     private final String tokenSource;
     private final String environmentToken;
     private final String fileToken;
@@ -26,7 +27,6 @@ public class ConfigProperties {
         final String baseUrlProperty = environment.getProperty("edison.vault.base-url");
         baseUrl = StringUtils.isEmpty(baseUrlProperty) ? getVaultAddrFromEnv() : baseUrlProperty;
         secretPath = environment.getProperty("edison.vault.secret-path");
-        properties = splitVaultPropertyKeys(environment.getProperty("edison.vault.properties"));
         tokenSource = environment.getProperty("edison.vault.token-source");
         environmentToken = environment.getProperty("edison.vault.environment-token");
         fileToken = environment.getProperty("edison.vault.file-token");
@@ -46,10 +46,6 @@ public class ConfigProperties {
 
     public String getSecretPath() {
         return secretPath;
-    }
-
-    public Set<String> getProperties() {
-        return properties;
     }
 
     public String getTokenSource() {
@@ -80,14 +76,6 @@ public class ConfigProperties {
         return System.getenv("VAULT_ADDR");
     }
 
-    private Set<String> splitVaultPropertyKeys(String properties) {
-        if (StringUtils.isEmpty(properties)) {
-            return Collections.emptySet();
-        }
-        return Collections.unmodifiableSet(
-                Arrays.stream(properties.split(",")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toSet()));
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -106,9 +94,6 @@ public class ConfigProperties {
             return false;
         }
         if (secretPath != null ? !secretPath.equals(that.secretPath) : that.secretPath != null) {
-            return false;
-        }
-        if (properties != null ? !properties.equals(that.properties) : that.properties != null) {
             return false;
         }
         if (tokenSource != null ? !tokenSource.equals(that.tokenSource) : that.tokenSource != null) {
@@ -134,7 +119,6 @@ public class ConfigProperties {
         int result = (enabled ? 1 : 0);
         result = 31 * result + (baseUrl != null ? baseUrl.hashCode() : 0);
         result = 31 * result + (secretPath != null ? secretPath.hashCode() : 0);
-        result = 31 * result + (properties != null ? properties.hashCode() : 0);
         result = 31 * result + (tokenSource != null ? tokenSource.hashCode() : 0);
         result = 31 * result + (environmentToken != null ? environmentToken.hashCode() : 0);
         result = 31 * result + (fileToken != null ? fileToken.hashCode() : 0);
@@ -150,7 +134,6 @@ public class ConfigProperties {
                 "enabled=" + enabled +
                 ", baseUrl='" + baseUrl + '\'' +
                 ", secretPath='" + secretPath + '\'' +
-                ", properties=" + properties +
                 ", tokenSource='" + tokenSource + '\'' +
                 ", environmentToken='" + environmentToken + '\'' +
                 ", fileToken='" + fileToken + '\'' +
