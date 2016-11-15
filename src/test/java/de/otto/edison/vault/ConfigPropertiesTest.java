@@ -20,7 +20,6 @@ public class ConfigPropertiesTest {
         when(environment.getProperty("edison.vault.enabled")).thenReturn("true");
         when(environment.getProperty("edison.vault.base-url")).thenReturn("someBaseUrl");
         when(environment.getProperty("edison.vault.secret-path")).thenReturn("someSecretPath");
-        when(environment.getProperty("edison.vault.properties")).thenReturn("keyOne.key1, keyOne, keyTwo, keyThree.value, keyFour.key4");
         when(environment.getProperty("edison.vault.token-source")).thenReturn("file");
         when(environment.getProperty("edison.vault.environment-token")).thenReturn("someEnvVariable");
         when(environment.getProperty("edison.vault.file-token")).thenReturn("someFile");
@@ -34,8 +33,6 @@ public class ConfigPropertiesTest {
         assertThat(testee.isEnabled(), is(true));
         assertThat(testee.getBaseUrl(), is("someBaseUrl"));
         assertThat(testee.getSecretPath(), is("someSecretPath"));
-        assertThat(testee.getProperties(), Matchers.hasSize(5));
-        assertThat(testee.getProperties(), hasItems("keyOne.key1","keyOne", "keyTwo", "keyThree.value", "keyFour.key4"));
         assertThat(testee.getTokenSource(), is("file"));
         assertThat(testee.getAppId(), is("someAppId"));
         assertThat(testee.getUserId(), is("someUserId"));
