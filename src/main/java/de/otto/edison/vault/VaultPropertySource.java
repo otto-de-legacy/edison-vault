@@ -1,32 +1,34 @@
 package de.otto.edison.vault;
 
+import com.ning.http.client.AsyncHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.MapPropertySource;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-public class VaultReader {
+import static de.otto.edison.vault.VaultClient.vaultClient;
 
-    private static final Logger LOG = LoggerFactory.getLogger(VaultReader.class);
+public class VaultPropertySource extends MapPropertySource {
 
-    private final ConfigProperties configProperties;
-    private final VaultClient vaultClient;
+    private static final Logger LOG = LoggerFactory.getLogger(VaultPropertySource.class);
 
-    public VaultReader(final ConfigProperties configProperties, VaultClient vaultClient) {
-        this.configProperties = configProperties;
-        this.vaultClient = vaultClient;
+    public VaultPropertySource(final String name, final ConfigProperties configProperties) {
+        super(name, new HashMap<>());
+        if (configProperties.isEnabled()) {
+            loadPropertiesFromVault(createVaultClient(configProperties), configProperties.getProperties());
+        }
     }
 
-    public boolean vaultEnabled() {
-        return configProperties.isEnabled();
+    protected VaultClient createVaultClient(final ConfigProperties configProperties) {
+        return vaultClient(configProperties, new VaultTokenReader(new AsyncHttpClient()).readVaultToken(configProperties));
     }
 
-    public Properties fetchPropertiesFromVault() {
-
-        final Properties vaultProperties = new Properties();
-        configProperties.getProperties()
+    private void loadPropertiesFromVault(final VaultClient vaultClient, Set<String> properties) {
+        properties
                 .stream()
                 .map(VaultFieldInfo::new)
                 .collect(Collectors.groupingBy(VaultFieldInfo::getVaultSecretPathName))
@@ -39,14 +41,13 @@ public class VaultReader {
                                     LOG.info("read of value '{}' from vault property '{}' successful",
                                             field.getVaultFieldName(),
                                             field.getVaultSecretPathName());
-                                    vaultProperties.put(field.getSpringPropertyPath(), vaultFieldValue);
+                                    source.put(field.getSpringPropertyPath(), vaultFieldValue);
                                 } else {
                                     throw new RuntimeException("unable read value '" + field.getVaultFieldName() +
-                                            " ' from vault property ' " + field.getVaultSecretPathName() + "' - value not found");
+                                            "' from vault property '" + field.getVaultSecretPathName() + "' - value not found");
                                 }
                             });
                         });
-        return vaultProperties;
     }
 
     private static class VaultFieldInfo {

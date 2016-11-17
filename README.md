@@ -5,7 +5,7 @@ Library to access Vault servers and inject secrets into Edison services.
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.otto.edison/edison-vault/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.otto.edison/edison-vault)
 
 ## Usage
-This library implements a Spring PropertySourcesPlaceholderConfigurer which extends and replaces the default one. It maps 
+This library implements a Spring PropertySource and appends it to the end of the existing PropertySource list. It maps 
 values from vault-secrets to properties which can then be easily accessed via 
 <a href="http://docs.spring.io/spring/docs/4.2.1.RELEASE/javadoc-api//org/springframework/beans/factory/annotation/Value.html">@Value</a> 
 annotations. To use this library the secrets must be setup like described in the <a href="#vault">vault configuration section</a>. 

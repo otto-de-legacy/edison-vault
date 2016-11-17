@@ -13,6 +13,7 @@ before_install:
   - VAULT_ADDR='http://127.0.0.1:8200' ./vault write secret/keyOne value=secretNumberOne
   - VAULT_ADDR='http://127.0.0.1:8200' ./vault write secret/keyTwo value=secretNumberTwo
   - VAULT_ADDR='http://127.0.0.1:8200' ./vault write secret/keyThree value=secretNumberThree
+  - VAULT_ADDR='http://127.0.0.1:8200' ./vault write secret/test/config one=1 two=2 three=3
   - echo "sonatypeUsername=someUsername" > gradle.properties
   - echo "sonatypePassword=somePassword" >> gradle.properties
 script: ./bin/gradlew check
