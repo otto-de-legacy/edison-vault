@@ -54,7 +54,7 @@ public class VaultClient {
             }
             LOG.info("read of vault property '{}' successful", key);
 
-            return extractFields(response.getResponseBody());
+            return extractFields(response.getResponseBody("utf-8"));
         } catch (ExecutionException | InterruptedException | IOException e) {
             LOG.error(String.format("extract of vault property '%s' failed", key), e);
             throw new RuntimeException(e);

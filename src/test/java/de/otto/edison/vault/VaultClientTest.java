@@ -6,8 +6,6 @@ import com.ning.http.client.Response;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.Optional;
-
 import static de.otto.edison.vault.VaultClient.vaultClient;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -43,7 +41,7 @@ public class VaultClientTest {
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "value", "someValue"));
+        when(response.getResponseBody("utf-8")).thenReturn(createReadResponse("someKey", "value", "someValue"));
         when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
@@ -70,7 +68,7 @@ public class VaultClientTest {
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someField", "someValue"));
+        when(response.getResponseBody("utf-8")).thenReturn(createReadResponse("someKey", "someField", "someValue"));
         when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
@@ -97,7 +95,7 @@ public class VaultClientTest {
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someFieldOtherThanValue", "someValue"));
+        when(response.getResponseBody("utf-8")).thenReturn(createReadResponse("someKey", "someFieldOtherThanValue", "someValue"));
         when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
@@ -125,7 +123,7 @@ public class VaultClientTest {
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody()).thenReturn(createReadResponse("someKey", "someField", "someValue"));
+        when(response.getResponseBody("utf-8")).thenReturn(createReadResponse("someKey", "someField", "someValue"));
         when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
@@ -155,7 +153,7 @@ public class VaultClientTest {
         AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
-        when(response.getResponseBody()).thenReturn(null);
+        when(response.getResponseBody("utf-8")).thenReturn(null);
         when(response.getStatusCode()).thenReturn(500);
         when(asyncHttpClient.prepareGet("http://someBaseUrl/v1/someSecretPath/someKey")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader("X-Vault-Token", "someClientToken")).thenReturn(boundRequestBuilder);
