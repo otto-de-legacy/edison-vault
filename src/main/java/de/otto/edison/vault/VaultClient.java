@@ -1,15 +1,16 @@
 package de.otto.edison.vault;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
 import com.google.gson.Gson;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class VaultClient {
 
@@ -35,14 +36,20 @@ public class VaultClient {
         this.vaultToken = vaultToken;
     }
 
-    public Map<String,String> readFields(final String key) {
+    public Map<String, String> readFields(final String key) {
         try {
-            final String url;
-            if (key != null && !key.isEmpty()) {
-                url = vaultBaseUrl + "/v1/" + secretPath + "/" + key;
-            } else {
-                url = vaultBaseUrl + "/v1/" + secretPath;
+            final StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.append(vaultBaseUrl).append("/v1");
+
+            if (!StringUtils.isEmpty(secretPath)) {
+                urlBuilder.append("/").append(secretPath);
             }
+
+            if (!StringUtils.isEmpty(key)) {
+                urlBuilder.append("/").append(key);
+            }
+
+            final String url = urlBuilder.toString();
             final Response response = asyncHttpClient
                     .prepareGet(url)
                     .setHeader("X-Vault-Token", vaultToken)
@@ -50,7 +57,9 @@ public class VaultClient {
                     .get();
             if ((response.getStatusCode() != 200)) {
                 LOG.error("can't read vault property '{}' with token '{}' from url '{}'", key, vaultToken, url);
-                throw new RuntimeException(String.format("read of vault property '%s' with token '%s' from url '%s' failed, return code is '%s'", key, vaultToken, url, response.getStatusCode()));
+                throw new RuntimeException(
+                        String.format("read of vault property '%s' with token '%s' from url '%s' failed, return code is '%s'",
+                                key, vaultToken, url, response.getStatusCode()));
             }
             LOG.info("read of vault property '{}' successful", key);
 
@@ -61,7 +70,7 @@ public class VaultClient {
         }
     }
 
-    private Map<String,String> extractFields(final String responseBody) {
+    private Map<String, String> extractFields(final String responseBody) {
         Map<String, Object> responseMap = new Gson().fromJson(responseBody, Map.class);
         return (Map<String, String>) responseMap.get("data");
     }
@@ -79,5 +88,4 @@ public class VaultClient {
         }
         return url;
     }
-
 }
