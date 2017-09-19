@@ -13,12 +13,14 @@ import static org.testng.Assert.fail;
 
 import static de.otto.edison.vault.VaultClient.vaultClient;
 
+import java.nio.charset.Charset;
+
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
 
 public class VaultClientTest {
 
@@ -42,11 +44,11 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody("utf-8")).thenReturn(createReadResponse("someKey", "value", "someValue"));
+        when(response.getResponseBody(Charset.forName("utf-8"))).thenReturn(createReadResponse("someKey", "value", "someValue"));
         when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
@@ -69,11 +71,12 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody("utf-8")).thenReturn(createReadResponse("someKey", "someField", "someValue"));
+        when(response.getResponseBody(Charset.forName("utf-8"))).thenReturn(
+                createReadResponse("someKey", "someField", "someValue"));
         when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
@@ -96,11 +99,12 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody("utf-8")).thenReturn(createReadResponse("someKey", "someFieldOtherThanValue", "someValue"));
+        when(response.getResponseBody(Charset.forName("utf-8"))).thenReturn(
+                createReadResponse("someKey", "someFieldOtherThanValue", "someValue"));
         when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
@@ -124,11 +128,12 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
-        when(response.getResponseBody("utf-8")).thenReturn(createReadResponse("someKey", "someField", "someValue"));
+        when(response.getResponseBody(Charset.forName("utf-8"))).thenReturn(
+                createReadResponse("someKey", "someField", "someValue"));
         when(asyncHttpClient.prepareGet(eq("http://someBaseUrl/v1/someSecretPath/someKey"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(eq("X-Vault-Token"), eq("someClientToken"))).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
@@ -157,10 +162,10 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
 
-        when(response.getResponseBody("utf-8")).thenReturn(null);
+        when(response.getResponseBody(Charset.forName("utf-8"))).thenReturn(null);
         when(response.getStatusCode()).thenReturn(500);
         when(asyncHttpClient.prepareGet("http://someBaseUrl/v1/someSecretPath/someKey")).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader("X-Vault-Token", "someClientToken")).thenReturn(boundRequestBuilder);
@@ -188,9 +193,9 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
-        when(response.getResponseBody("utf-8")).thenReturn("{}");
+        when(response.getResponseBody(Charset.forName("utf-8"))).thenReturn("{}");
         when(response.getStatusCode()).thenReturn(200);
         when(asyncHttpClient.prepareGet(anyString())).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(anyString(), anyString())).thenReturn(boundRequestBuilder);
@@ -214,9 +219,9 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
-        when(response.getResponseBody("utf-8")).thenReturn("{}");
+        when(response.getResponseBody(Charset.forName("utf-8"))).thenReturn("{}");
         when(response.getStatusCode()).thenReturn(200);
         when(asyncHttpClient.prepareGet(anyString())).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(anyString(), anyString())).thenReturn(boundRequestBuilder);
@@ -240,9 +245,9 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
-        when(response.getResponseBody("utf-8")).thenReturn("{}");
+        when(response.getResponseBody(Charset.forName("utf-8"))).thenReturn("{}");
         when(response.getStatusCode()).thenReturn(200);
         when(asyncHttpClient.prepareGet(anyString())).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(anyString(), anyString())).thenReturn(boundRequestBuilder);
@@ -266,9 +271,9 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture<Response> listenableFuture = mock(ListenableFuture.class);
-        when(response.getResponseBody("utf-8")).thenReturn("{}");
+        when(response.getResponseBody(Charset.forName("utf-8"))).thenReturn("{}");
         when(response.getStatusCode()).thenReturn(200);
         when(asyncHttpClient.prepareGet(anyString())).thenReturn(boundRequestBuilder);
         when(boundRequestBuilder.setHeader(anyString(), anyString())).thenReturn(boundRequestBuilder);

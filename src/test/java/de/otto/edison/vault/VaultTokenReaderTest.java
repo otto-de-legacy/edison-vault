@@ -1,23 +1,27 @@
 package de.otto.edison.vault;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.testng.PowerMockTestCase;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-import org.testng.reporters.Files;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.testng.Assert.fail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.powermock.api.mockito.PowerMockito.*;
-import static org.testng.Assert.fail;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.testng.PowerMockTestCase;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import org.testng.reporters.Files;
 
 @PrepareForTest(VaultTokenReader.class)
 public class VaultTokenReaderTest extends PowerMockTestCase {
@@ -50,13 +54,14 @@ public class VaultTokenReaderTest extends PowerMockTestCase {
     public void shouldReadTokenFromLogin() throws Exception {
         // given
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getResponseBody()).thenReturn(createValidLoginJson("someClientToken"));
         when(response.getStatusCode()).thenReturn(200);
         when(asyncHttpClient.preparePost("http://someBaseUrl/v1/auth/app-id/login")).thenReturn(boundRequestBuilder);
-        when(boundRequestBuilder.setBody("{\"app_id\":\"someAppId\", \"user_id\": \"someUserId\"}")).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setBody("{\"app_id\":\"someAppId\", \"user_id\": \"someUserId\"}")).thenReturn(
+                boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
         when(listenableFuture.get()).thenReturn(response);
 
@@ -74,13 +79,14 @@ public class VaultTokenReaderTest extends PowerMockTestCase {
     public void shouldThrowRuntimeExceptionIfLoginFails() throws Exception {
         // given
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getResponseBody()).thenReturn(null);
         when(response.getStatusCode()).thenReturn(401);
         when(asyncHttpClient.preparePost("http://someBaseUrl/v1/auth/app-id/login")).thenReturn(boundRequestBuilder);
-        when(boundRequestBuilder.setBody("{\"app_id\":\"someAppId\", \"user_id\": \"someUserId\"}")).thenReturn(boundRequestBuilder);
+        when(boundRequestBuilder.setBody("{\"app_id\":\"someAppId\", \"user_id\": \"someUserId\"}")).thenReturn(
+                boundRequestBuilder);
         when(boundRequestBuilder.execute()).thenReturn(listenableFuture);
         when(listenableFuture.get()).thenReturn(response);
 
@@ -134,7 +140,8 @@ public class VaultTokenReaderTest extends PowerMockTestCase {
             when(configProperties.getTokenSource()).thenReturn("file");
             when(configProperties.getFileToken()).thenReturn(tokenFileName);
 
-            assertThat(new VaultTokenReader(asyncHttpClient).readVaultToken(configProperties), is("2434c862-c01c-4bdc-e862-9ba9afceab32"));
+            assertThat(new VaultTokenReader(asyncHttpClient).readVaultToken(configProperties),
+                    is("2434c862-c01c-4bdc-e862-9ba9afceab32"));
         } catch (FileNotFoundException | UnsupportedEncodingException e) {
             fail();
         } finally {
@@ -183,6 +190,4 @@ public class VaultTokenReaderTest extends PowerMockTestCase {
                 "  }\n" +
                 "}\n";
     }
-
-
 }

@@ -1,16 +1,16 @@
 package de.otto.edison.vault;
 
-import com.ning.http.client.AsyncHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.MapPropertySource;
+import static de.otto.edison.vault.VaultClient.vaultClient;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static de.otto.edison.vault.VaultClient.vaultClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.MapPropertySource;
 
 public class VaultPropertySource extends MapPropertySource {
 
@@ -24,7 +24,7 @@ public class VaultPropertySource extends MapPropertySource {
     }
 
     protected VaultClient createVaultClient(final ConfigProperties configProperties) {
-        return vaultClient(configProperties, new VaultTokenReader(new AsyncHttpClient()).readVaultToken(configProperties));
+        return vaultClient(configProperties, new VaultTokenReader(new DefaultAsyncHttpClient()).readVaultToken(configProperties));
     }
 
     private void loadPropertiesFromVault(final VaultClient vaultClient, Set<String> properties) {

@@ -1,16 +1,17 @@
 package de.otto.edison.vault;
 
-import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.Gson;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
 
 public class VaultClient {
 
@@ -20,7 +21,7 @@ public class VaultClient {
     private final String secretPath;
     private final String vaultToken;
 
-    protected AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+    protected AsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
 
     public static VaultClient vaultClient(final ConfigProperties configProperties, String vaultToken) {
         return vaultClient(configProperties.getBaseUrl(), configProperties.getSecretPath(), vaultToken);
@@ -63,8 +64,8 @@ public class VaultClient {
             }
             LOG.info("read of vault property '{}' successful", key);
 
-            return extractFields(response.getResponseBody("utf-8"));
-        } catch (ExecutionException | InterruptedException | IOException e) {
+            return extractFields(response.getResponseBody(Charset.forName("utf-8")));
+        } catch (ExecutionException | InterruptedException e) {
             LOG.error(String.format("extract of vault property '%s' failed", key), e);
             throw new RuntimeException(e);
         }
