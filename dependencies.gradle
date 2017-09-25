@@ -7,7 +7,7 @@ ext.libraries = [
                 'org.powermock:powermock-module-testng:1.6.3',
                 'org.springframework:spring-test:4.2.5.RELEASE'
         ],
-        asyncHttp: ["com.ning:async-http-client:1.9.34"],
+        asyncHttp: ["org.asynchttpclient:async-http-client:2.0.36"],
         gson     : ['com.google.code.gson:gson:2.6.2'],
         spring   : [
                 "org.springframework:spring-context:4.2.5.RELEASE",

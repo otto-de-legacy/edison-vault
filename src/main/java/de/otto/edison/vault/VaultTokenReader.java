@@ -1,12 +1,5 @@
 package de.otto.edison.vault;
 
-import com.google.gson.Gson;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -14,6 +7,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
+import com.google.gson.Gson;
 
 public class VaultTokenReader {
     private static final Logger LOG = LoggerFactory.getLogger(VaultTokenReader.class);
@@ -74,7 +75,7 @@ public class VaultTokenReader {
             LOG.info("login to vault successful");
 
             return extractToken(response.getResponseBody());
-        } catch (ExecutionException | InterruptedException | IOException e) {
+        } catch (ExecutionException | InterruptedException e) {
             LOG.error("could not retrieve token from vault", e);
             throw new RuntimeException(e);
         }
