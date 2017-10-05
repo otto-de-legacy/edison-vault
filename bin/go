@@ -38,6 +38,8 @@ if [ "$1" == "help" ]; then
     help
 elif [ "$1" == "release" ]; then
     release
+elif [ -z "$1" ]; then
+    ${SCRIPT_DIR}/gradlew clean check
 else
     ${SCRIPT_DIR}/gradlew $*
 fi
