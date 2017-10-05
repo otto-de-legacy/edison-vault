@@ -15,3 +15,4 @@ sleep 1
 ./vault write secret/keyTwo value=secretNumberTwo
 ./vault write secret/keyThree value=secretNumberThree
 
+./vault write secret/test/config one=1 two=2 three=3
