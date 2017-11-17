@@ -1,14 +1,15 @@
 package de.otto.edison.vault;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.hamcrest.Matchers;
 import org.springframework.core.env.Environment;
 import org.testng.annotations.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ConfigPropertiesTest {
 
@@ -25,7 +26,6 @@ public class ConfigPropertiesTest {
         when(environment.getProperty("edison.vault.file-token")).thenReturn("someFile");
         when(environment.getProperty("edison.vault.appid")).thenReturn("someAppId");
         when(environment.getProperty("edison.vault.userid")).thenReturn("someUserId");
-        when(environment.getProperty("edison.vault.token-filename")).thenReturn("someFilename");
 
         // When
         ConfigProperties testee = new ConfigProperties(environment);
@@ -39,35 +39,6 @@ public class ConfigPropertiesTest {
         assertThat(testee.getTokenSource(), is("file"));
         assertThat(testee.getAppId(), is("someAppId"));
         assertThat(testee.getUserId(), is("someUserId"));
-        assertThat(testee.getTokenFileName(), is("someFilename"));
-
-    }
-
-    @Test
-    public void shouldSetDefaultTokenFileName() throws Exception {
-        // Given
-        Environment environment = mock(Environment.class);
-        when(environment.getProperty("edison.vault.token-filename")).thenReturn(null);
-
-        // When
-        ConfigProperties testee = new ConfigProperties(environment);
-
-        // Then
-        assertThat(testee.getTokenFileName(), is(".vault-token"));
-
-    }
-
-    @Test
-    public void shouldSetDefaultToken() throws Exception {
-        // Given
-        Environment environment = mock(Environment.class);
-        when(environment.getProperty("user.home")).thenReturn("/test");
-
-        // When
-        ConfigProperties testee = new ConfigProperties(environment);
-
-        // Then
-        assertThat(testee.getDefaultVaultTokenFileName(), is("/test/.vault-token"));
 
     }
 }
