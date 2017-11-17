@@ -1,13 +1,12 @@
 package de.otto.edison.vault;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ConfigProperties {
 
@@ -20,7 +19,6 @@ public class ConfigProperties {
     private final String fileToken;
     private final String appId;
     private final String userId;
-    private final String tokenFileName;
     private final String defaultVaultToken;
 
     public ConfigProperties(Environment environment) {
@@ -34,9 +32,8 @@ public class ConfigProperties {
         fileToken = environment.getProperty("edison.vault.file-token");
         appId = environment.getProperty("edison.vault.appid");
         userId = environment.getProperty("edison.vault.userid");
-        tokenFileName = Optional.ofNullable(environment.getProperty("edison.vault.token-filename")).orElse(".vault-token") ;
         final String homeDir = environment.getProperty("user.home");
-        defaultVaultToken = homeDir + "/" + tokenFileName;
+        defaultVaultToken = homeDir + "/.vault-token";
     }
 
     public boolean isEnabled() {
@@ -73,10 +70,6 @@ public class ConfigProperties {
 
     public String getUserId() {
         return userId;
-    }
-
-    public String getTokenFileName() {
-        return tokenFileName;
     }
 
     public String getDefaultVaultTokenFileName() {
@@ -133,9 +126,6 @@ public class ConfigProperties {
         if (userId != null ? !userId.equals(that.userId) : that.userId != null) {
             return false;
         }
-        if (tokenFileName != null ? !tokenFileName.equals(that.tokenFileName) : that.tokenFileName != null) {
-            return false;
-        }
         return defaultVaultToken != null ? defaultVaultToken.equals(that.defaultVaultToken) : that.defaultVaultToken == null;
     }
 
@@ -150,7 +140,6 @@ public class ConfigProperties {
         result = 31 * result + (fileToken != null ? fileToken.hashCode() : 0);
         result = 31 * result + (appId != null ? appId.hashCode() : 0);
         result = 31 * result + (userId != null ? userId.hashCode() : 0);
-        result = 31 * result + (tokenFileName != null ? tokenFileName.hashCode() : 0);
         result = 31 * result + (defaultVaultToken != null ? defaultVaultToken.hashCode() : 0);
         return result;
     }
@@ -167,7 +156,6 @@ public class ConfigProperties {
                 ", fileToken='" + fileToken + '\'' +
                 ", appId='" + appId + '\'' +
                 ", userId='" + userId + '\'' +
-                ", tokenFileName='" + tokenFileName + '\'' +
                 ", defaultVaultToken='" + defaultVaultToken + '\'' +
                 '}';
     }
