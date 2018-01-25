@@ -1,8 +1,9 @@
 package de.otto.edison.vault;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.annotations.BeforeMethod;
@@ -50,7 +51,7 @@ public class VaultTokenReaderTest extends PowerMockTestCase {
     public void shouldReadTokenFromLogin() throws Exception {
         // given
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getResponseBody()).thenReturn(createValidLoginJson("someClientToken"));
@@ -74,7 +75,7 @@ public class VaultTokenReaderTest extends PowerMockTestCase {
     public void shouldThrowRuntimeExceptionIfLoginFails() throws Exception {
         // given
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getResponseBody()).thenReturn(null);

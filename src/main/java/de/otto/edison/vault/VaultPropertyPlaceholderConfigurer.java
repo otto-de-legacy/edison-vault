@@ -1,6 +1,5 @@
 package de.otto.edison.vault;
 
-import com.ning.http.client.AsyncHttpClient;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -9,6 +8,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import static de.otto.edison.vault.VaultClient.vaultClient;
+import static org.asynchttpclient.Dsl.asyncHttpClient;
 
 @Component
 @ConditionalOnProperty(prefix = "edison.vault", name = "enableconfigurer", matchIfMissing = true)
@@ -20,7 +20,7 @@ public class VaultPropertyPlaceholderConfigurer extends PropertySourcesPlacehold
     public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) throws BeansException {
         ConfigProperties configProperties = new ConfigProperties(environment);
         if (configProperties.isEnabled()) {
-            VaultReader vaultReader = new VaultReader(configProperties, vaultClient(configProperties, new VaultTokenReader(new AsyncHttpClient()).readVaultToken(configProperties)));
+            VaultReader vaultReader = new VaultReader(configProperties, vaultClient(configProperties, new VaultTokenReader(asyncHttpClient()).readVaultToken(configProperties)));
             setProperties(vaultReader.fetchPropertiesFromVault());
         }
         super.postProcessBeanFactory(beanFactory);

@@ -1,8 +1,8 @@
 package de.otto.edison.vault;
 
 import com.google.gson.Gson;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -74,7 +74,7 @@ public class VaultTokenReader {
             LOG.info("login to vault successful");
 
             return extractToken(response.getResponseBody());
-        } catch (ExecutionException | InterruptedException | IOException e) {
+        } catch (ExecutionException | InterruptedException e) {
             LOG.error("could not retrieve token from vault", e);
             throw new RuntimeException(e);
         }

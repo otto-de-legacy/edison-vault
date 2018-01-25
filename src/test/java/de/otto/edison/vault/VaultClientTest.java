@@ -1,8 +1,9 @@
 package de.otto.edison.vault;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -39,7 +40,7 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
@@ -66,7 +67,7 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
@@ -93,7 +94,7 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
@@ -121,7 +122,7 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getStatusCode()).thenReturn(200);
@@ -152,7 +153,7 @@ public class VaultClientTest {
         testee.asyncHttpClient = asyncHttpClient;
 
         Response response = mock(Response.class);
-        AsyncHttpClient.BoundRequestBuilder boundRequestBuilder = mock(AsyncHttpClient.BoundRequestBuilder.class);
+        BoundRequestBuilder boundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture listenableFuture = mock(ListenableFuture.class);
 
         when(response.getResponseBody()).thenReturn(null);

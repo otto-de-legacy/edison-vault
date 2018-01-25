@@ -1,8 +1,9 @@
 package de.otto.edison.vault;
 
 import com.google.gson.Gson;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Dsl;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+
+import static org.asynchttpclient.Dsl.asyncHttpClient;
 
 public class VaultClient {
 
@@ -19,7 +22,7 @@ public class VaultClient {
     private final String secretPath;
     private final String vaultToken;
 
-    protected AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+    protected AsyncHttpClient asyncHttpClient = asyncHttpClient();
 
     public static VaultClient vaultClient(final ConfigProperties configProperties, String vaultToken) {
         return vaultClient(configProperties.getBaseUrl(), configProperties.getSecretPath(), vaultToken);
@@ -54,7 +57,7 @@ public class VaultClient {
             LOG.info("read of vault property '{}' successful", key);
 
             return extractField(response.getResponseBody(), field);
-        } catch (ExecutionException | InterruptedException | IOException e) {
+        } catch (ExecutionException | InterruptedException e) {
             LOG.error(String.format("extract of vault property '%s' failed", key), e);
             throw new RuntimeException(e);
         }
